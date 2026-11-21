@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حجز كراسي الاتوبيس</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mut:#6a7380;--free:#d7e8ff;--freeb:#7aa7e6;--taken:#c9ccd1;--mine:#1f9d55;--line:#e2e5ea;--acc:#1f4e78}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171b;--card:#1d2127;--tx:#eceff3;--mut:#9aa4b2;--free:#26405f;--freeb:#4f7fc0;--taken:#3a3f47;--mine:#2bb673;--line:#2d333b;--acc:#7fb2e8}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14171b;--card:#1d2127;--tx:#eceff3;--mut:#9aa4b2;--free:#26405f;--freeb:#4f7fc0;--taken:#3a3f47;--mine:#2bb673;--line:#2d333b;--acc:#7fb2e8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:520px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:4px 0 12px;color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+label{font-size:13px;color:var(--mut);display:block;margin-bottom:4px}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--tx);font-size:16px;font-family:inherit}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.tab{flex:0 0 auto;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx);font-size:14px;font-family:inherit;cursor:pointer;text-align:center}
+.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.tab small{display:block;font-size:11px;opacity:.85}
+.bus{display:flex;flex-direction:column;gap:8px;align-items:center;padding:10px 0}
+.front{width:100%;text-align:center;font-size:12px;color:var(--mut);border-bottom:2px dashed var(--line);padding-bottom:6px}
+.r{display:flex;gap:6px;align-items:center;justify-content:center}
+.aisle{width:26px}
+.s{width:44px;height:44px;border-radius:9px 9px 5px 5px;border:2px solid var(--freeb);background:var(--free);color:var(--tx);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;padding:0}
+.s.t{background:var(--taken);border-color:var(--taken);color:var(--mut);cursor:not-allowed}
+.s.m{background:var(--mine);border-color:var(--mine);color:#fff}
+.leg{display:flex;gap:12px;justify-content:center;font-size:12px;color:var(--mut);flex-wrap:wrap}
+.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:4px;vertical-align:middle}
+#msg{min-height:22px;font-size:14px;margin:6px 0;text-align:center}
+.me{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
+button.b{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx);font-family:inherit;cursor:pointer}
+.sum{font-size:13px;color:var(--mut);text-align:center}
+.fr{display:grid;grid-template-columns:1fr 34px;gap:6px;margin-top:8px}
+.sg{border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:4px;overflow:hidden}
+.sg div{padding:9px 10px;cursor:pointer;border-top:1px solid var(--line);font-size:14px}.sg div:first-child{border-top:0}
+.hd{text-align:center;font-size:14px;font-weight:700;margin-bottom:4px}
+.bk{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-top:1px solid var(--line)}
+.s.z{opacity:.4;border-style:dashed;background:var(--taken);border-color:var(--mut);color:var(--mut);cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🚌 حجز كراسي الاتوبيس</h1>
+<div id="status" class="card">جاري التحميل...</div>
+<div id="ok" class="card" hidden style="border-color:var(--mine)"></div>
+<div id="form" hidden>
+ <div class="card">
+  <label for="nm">اكتب اسمك واختاره من القايمة</label><input id="nm" autocomplete="off">
+  <div class="sg" id="sgm" hidden></div><div class="sum" id="inm"></div>
+  <div id="frs"></div>
+  <button class="b" id="addf" style="margin-top:8px">+ احجز لصديق (لحد 3)</button>
+ </div>
+ <div class="card"><label for="who">بتحجز لمين دلوقتي؟</label><select id="who"></select></div>
+ <div class="card" id="bk" hidden></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div id="msg"></div>
+<div class="card" id="mapcard" hidden>
+  <div class="hd" id="hd"></div>
+  <div class="leg"><span><i style="background:var(--free);border:1px solid var(--freeb)"></i>متاح</span><span><i style="background:var(--taken)"></i>محجوز</span><span><i style="background:var(--mine)"></i>حجزك</span><span><i style="background:var(--taken);opacity:.4"></i>لقسم تاني / احتياطي</span></div>
+  <div class="bus" id="bus"></div>
+  <div class="sum" id="sum"></div>
+</div>
+<div class="card" id="alog" hidden>
+  <div class="hd">دخول الأدمن</div>
+  <input id="ae" type="email" placeholder="الإيميل" style="direction:ltr;margin-bottom:6px"><input id="ap" type="password" placeholder="الباسورد" style="direction:ltr">
+  <button class="b" id="ab" style="margin-top:8px">دخول</button>
+</div>
+<div class="card" id="adm" hidden></div>
+<div class="card" id="cfgc" hidden><div class="hd">إعدادات التوزيع (الأدمن)</div>
+ <div class="row2"><div><label for="cN">عدد الاتوبيسات</label><input id="cN" type="number" min="2"></div><div><label for="cC">كراسي الاتوبيس</label><input id="cC" type="number" min="4"></div></div>
+ <label for="cP" style="margin-top:8px">نسبة أغلبية القسم %</label><input id="cP" type="number" min="51" max="95">
+ <button class="b" id="cA" style="margin-top:8px">تطبيق</button><div class="sum" id="cS" style="margin-top:8px;text-align:right"></div></div>
+</div>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,signInAnonymously,onAuthStateChanged,signInWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,onSnapshot,runTransaction,collection,query,where,getDocs,deleteField} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ===== الصق إعدادات مشروع Firebase هنا =====
+const firebaseConfig={apiKey:"AIzaSyC0M0lUivNWkQQa8jPQh-ZLTJRf1dH0V3c",authDomain:"fanday-73184.firebaseapp.com",projectId:"fanday-73184",appId:"1:677055795277:web:b6a8361c7522f4c509cc04"};
+const ADMIN_EMAIL="ziad@gmail.com"; // نفس الإيميل اللي هتعمله في Firebase Authentication
+// ===========================================
+
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const DEPTS=['إنجليزي','ألماني','إسباني','صيني','فرنساوي'];
+// قايمة المسجلين من ملف الاستمارة: [الاسم، القسم، عدد المرافقين]
+const ROSTER=[["Anfal Fayed","إسباني",0],["Aya Hendawy Youssef","إسباني",0],["Daren Yasser","إسباني",1],["habiba ayman","إسباني",0],["jana alwakeel","إسباني",0],["Jana hisham","إسباني",0],["mahmoud elmahs","إسباني",0],["Mariam shrief","إسباني",0],["Menna Ayman","إسباني",0],["Rawan Emad","إسباني",0],["Salma sherif","إسباني",1],["Sama Ahmed","إسباني",0],["Shahd wael","إسباني",0],["Sohaila Saher Abdelmonem","إسباني",0],["Sohila saeed","إسباني",0],["Zeinab emam","إسباني",0],["ابتهال شكري محمد الشحات","إسباني",0],["ايه شعبان","إسباني",0],["بسملة علاء صادق","إسباني",0],["بسنت عبدالجواد","إسباني",0],["حنين عمرو محمد","إسباني",0],["خلود عفت محمود","إسباني",0],["رانيا ابو الدهب","إسباني",2],["روان عبد العظيم النجار","إسباني",0],["ريمون مصباح","إسباني",0],["زياد فارس سليمان","إسباني",0],["ساره إبراهيم عبد المنعم","إسباني",0],["سما إسماعيل","إسباني",0],["سما خالد علي يونس","إسباني",3],["سمية عصام","إسباني",0],["شهد محمد عبد المجيد","إسباني",0],["شهد محمود احمد","إسباني",0],["عادل. صبحي محمد","إسباني",0],["عبدالرحمن سعيد","إسباني",0],["كابر طارق سعد","إسباني",0],["محمود محروس منصور","إسباني",0],["مرام عادل","إسباني",0],["ملك حمدي","إسباني",0],["منة الله محمد عبد الفتاح","إسباني",0],["منه امجد حسين","إسباني",0],["منه حاتم ثابت محمد","إسباني",0],["نزار محمد","إسباني",0],["نور ياسر طه","إسباني",0],["يوسف محمد عبدالله السيد","إسباني",0],["Amira Khaled Mohamed","ألماني",0],["Aya Mohamed Ebrahim","ألماني",0],["Bassant mahmoud Ebaid","ألماني",1],["Eman Ashraf Ahmed","ألماني",0],["Ereny Ashraf Fawzy","ألماني",0],["Habiba Ahmed","ألماني",1],["Habiba Walid Hanafi","ألماني",0],["habiba yasser elnaggar","ألماني",0],["habiba yasser sayed","ألماني",0],["Huda Mostafa mosad","ألماني",0],["jana AMonem","ألماني",0],["Jana Eid Sayed Salama","ألماني",0],["Jessica Hishmat Ageeb","ألماني",0],["Mai hussein abo Shama","ألماني",0],["Malak mahmoud ahmed","ألماني",0],["Mariam Ahmed","ألماني",0],["Mariam ashraf ahmed","ألماني",0],["Mariam Elshennawii","ألماني",1],["Mariam Ihab William","ألماني",0],["Mariam Khaled Ahmed","ألماني",3],["Marwa Elhenawy","ألماني",0],["Menna Gamal","ألماني",0],["nouran ashraf","ألماني",0],["Nourhan Hani","ألماني",0],["Rahma Ahmed Mohamed","ألماني",0],["Roqaya Atef","ألماني",0],["Sama Mustafa Mohammed","ألماني",0],["Shahd Hamdy","ألماني",0],["Shahd Mohamed shehata","ألماني",0],["Sondos Ibrahim marzouq","ألماني",0],["Voula Malak","ألماني",0],["Youssef Ibrahim","ألماني",0],["أحمد عبدالناصر فرحات","ألماني",0],["اسراء خالد","ألماني",0],["آلاء عادل احمد","ألماني",1],["آلاء عادل احمد","ألماني",0],["بسنت جمال محمد محمود","ألماني",0],["جورج صلاح يوسف","ألماني",0],["حبيبه احمد عبدالمحسن","ألماني",0],["داليا ناصر عطيه سيد","ألماني",0],["ساره فايز طوخي","ألماني",0],["ساره محمد مصطفي","ألماني",0],["سندس عماد ابراهيم","ألماني",0],["سهيلة سامي محمود علي","ألماني",0],["سيف محمد فتحي","ألماني",0],["شهد محمد فتحي","ألماني",0],["شهد محمد محمد كامل","ألماني",0],["شهد مصطفى صلاح الدين","ألماني",0],["عبدالله عمرو مصطفى فريد","ألماني",0],["علياء وائل أحمد","ألماني",1],["عمر شريف محمد صابر","ألماني",0],["فاطمه احمد محمد فهمى","ألماني",0],["فرح رضا محمد احمد","ألماني",0],["فرح عزالدين زكي","ألماني",0],["كيرلس انيس شنودة","ألماني",0],["محمود خالد محمود مسعود","ألماني",0],["ملك علاء شحته","ألماني",0],["ملك علي الجناني","ألماني",0],["منة الله خالد محمد السيد","ألماني",0],["منة الله محمد علاء الدين علي","ألماني",0],["منةالله احمد مصطفي","ألماني",1],["منه محمد احمد","ألماني",0],["ندى محمود محمد","ألماني",2],["نصر عبد العظيم","ألماني",0],["هبة أحمد عبدالمحسن","ألماني",0],["ياسمين احمد فاروق","ألماني",1],["ياسمين حسام انور","ألماني",0],["ياسمين حسين عبد العزيز","ألماني",0],["يوسف أحمد عزالدين جلعان","ألماني",0],["يوسف حسين عبدالله","ألماني",0],["Aya Fathy","إنجليزي",0],["Basmalla Samy mostafa","إنجليزي",1],["Dalia elsayed","إنجليزي",0],["Enjy Hanna Fathy","إنجليزي",0],["Esraa Mohamed Ahmed Ewis","إنجليزي",0],["Farah Sayed","إنجليزي",0],["ganna kelany","إنجليزي",0],["Hana wael","إنجليزي",1],["Haneen Ahmed","إنجليزي",2],["Malak Elshorbagy","إنجليزي",0],["Manar Ramadan","إنجليزي",0],["Maryam Mofreh","إنجليزي",0],["Maryam Mohamed sayed","إنجليزي",0],["Nour mohamed","إنجليزي",0],["Rawan Ahmed ali","إنجليزي",0],["Rawan Walid","إنجليزي",0],["Salma Mohamed Elsayed","إنجليزي",0],["Sara Essam Mohammed","إنجليزي",0],["Shahd Saad Fathy","إنجليزي",0],["Shaza Ibrahim","إنجليزي",0],["Tasneem Mahmoud Saad","إنجليزي",0],["Toka Mohamed ragab","إنجليزي",0],["Youstina romany youssef","إنجليزي",0],["أحمد شوقي محمد راغب","إنجليزي",0],["أحمد عبدالنبي أحمد ناصف","إنجليزي",0],["الاء محمد انيس عبدالقادر","إنجليزي",0],["بركسام وجيه جاد","إنجليزي",1],["بسملة محمود صوفي","إنجليزي",2],["بسنت حمدي عثمان","إنجليزي",0],["تقى محمد رجب","إنجليزي",1],["حبيبه محمد محمد حماد","إنجليزي",0],["دعاء عيد محمد عبد القادر","إنجليزي",0],["رؤى احمد حامد","إنجليزي",0],["ريم ابراهيم عبدالمنعم","إنجليزي",2],["زينه تامر علي بيومي الكومي","إنجليزي",0],["سارة أحمد محمود","إنجليزي",0],["ساره ايمن عبدالحميد","إنجليزي",1],["ساره عادل عبد العاطي","إنجليزي",0],["ساره محمد رمزي راتب","إنجليزي",0],["سلمى أحمد رمزي","إنجليزي",0],["شهد احمد السعيد","إنجليزي",0],["شهد شعبان عبد العزيز","إنجليزي",1],["شهد محمد علاء الدين علي","إنجليزي",0],["شهد محمود علي","إنجليزي",0],["علي عبد المجيد عبد اللطيف","إنجليزي",0],["غرام طارق عصمت","إنجليزي",0],["فاطمه محمود عبد الباسط الماظ","إنجليزي",0],["فرح وليد محمود احمد","إنجليزي",1],["مايا شريف","إنجليزي",0],["محمد أحمد محمد الجمال","إنجليزي",0],["محمد فاروق محمد / يونس محمد يونس","إنجليزي",0],["محمود طارق محمود","إنجليزي",0],["مروان وليد محمد فكري","إنجليزي",0],["مريم احمد حلمي","إنجليزي",0],["مريم احمد عدلي","إنجليزي",0],["مريم رمضان مصطفى","إنجليزي",0],["مريم ياسر حسن","إنجليزي",0],["منه محمد سيداحمد خطاب","إنجليزي",0],["نادين احمد محمود","إنجليزي",0],["ندي هاني محمد","إنجليزي",0],["نور حسام الدين","إنجليزي",0],["نوران ابراهيم عطيه سيد","إنجليزي",1],["هـايدى محمد","إنجليزي",0],["هديه سامي عبدالعظيم","إنجليزي",1],["هولي هاني نبيل","إنجليزي",0],["ياسمين محمود","إنجليزي",0],["ياسمينا خالد جنيدي","إنجليزي",0],["يوسف وائل محمد","إنجليزي",0],["يونس محمد يونس","إنجليزي",0],["Aya Hamdy lotfy","صيني",0],["Fatma Yousry","صيني",0],["Haneen Elsayed","صيني",1],["Mohamed Saber沈阳","صيني",0],["Sahar Mohamed","صيني",0],["Shahd ahmed abdelaziz","صيني",0],["جودي محمد إبراهيم","صيني",0],["دنيا وائل ابراهيم محمد","صيني",0],["سارة توفيق السيد","صيني",0],["سارة عماد محمد إبراهيم","صيني",0],["سلمي محروس","صيني",0],["سمير محمد سمير","صيني",0],["شروق عبدالله عجمي","صيني",0],["شهد محمد زياد بهلول","صيني",0],["عاليه محمد","صيني",0],["فاطمه اسماعيل عبدالوهاب","صيني",2],["ماريز فوزي","صيني",0],["محمد حشمت محمد","صيني",0],["ملك مجدي","صيني",0],["منار عبد الغني محمد","صيني",0],["منة عادل عبد الجواد","صيني",0],["ندي محمود صالح","صيني",1],["نورهان عبدالله خطاب","صيني",0],["نورهان نبيل يوسف","صيني",0],["Arwa Ebrahim","فرنساوي",0],["Eslam magdy","فرنساوي",0],["Farah Mohamed Saleh","فرنساوي",0],["Hadeer","فرنساوي",0],["Hager Mohammed Elgushy","فرنساوي",0],["Madonna romany","فرنساوي",0],["Menna Taher","فرنساوي",0],["Rana mahmoud","فرنساوي",0],["Rawda Tarek","فرنساوي",0],["Sama haitham","فرنساوي",1],["vera sameh","فرنساوي",1],["روان ايمن ابراهيم","فرنساوي",0],["ساره سعد","فرنساوي",1],["سما محمد محمد","فرنساوي",0],["كريم محمد يونس","فرنساوي",1],["مريم سامح","فرنساوي",0],["ملك عمرو حامد رجب","فرنساوي",0],["ميمنه السيد محمد محب","فرنساوي",0],["مينا وجدى فؤاد","فرنساوي",0]];
+let CAP=49,MIXED=6,QUOTA={},MAJ={},OPEN={},CFG={N:6,C:49,P:70};
+const S={uid:null,admin:false,bus:null,seats:{},watch:null,unsub:null,mine:[],friends:[],busy:false,pc:{},all:{},occ:{},started:false};
+const $=id=>document.getElementById(id);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function NORM(t){return t.trim().replace(/[\u064B-\u065F]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/\s+/g,' ').toLowerCase();}
+function NID(t){const x=NORM(t);let a=2166136261,c=5381;for(const ch of x){a^=ch.charCodeAt(0);a=Math.imul(a,16777619)>>>0;c=(Math.imul(c,33)^ch.charCodeAt(0))>>>0;}return 'p'+a.toString(36)+c.toString(36);}
+const RI=ROSTER.map(r=>({name:r[0],dept:r[1],comp:r[2],k:NORM(r[0])}));
+function lookup(t){const k=NORM(t||'');return k?RI.find(r=>r.k===k)||null:null;}
+function say(t,bad){const m=$('msg');m.textContent=t||'';m.style.color=bad?'#d64545':'var(--mine)';}
+function zone(b,n){let a=0;for(const [d,q] of Object.entries(QUOTA[b]||{})){a+=q;if(n<=a)return d;}return 'احتياطي';}
+function rangeOf(v){const q=String(v.seats).split('-').map(Number);return q.length>1?[q[0],q[1]]:[q[0],q[0]];}
+
+// ---------- حساب التوزيع من أعداد القايمة ----------
+function buildConfig(N,C,P){
+ N=Math.max(2,Math.floor(N)||6);C=Math.max(4,Math.floor(C)||49);P=Math.min(95,Math.max(51,+P||70));CFG={N:N,C:C,P:P};
+ const seen=new Set(),D0=DEPTS.map(n=>({name:n,T:0}));
+ RI.forEach(r=>{if(seen.has(r.k))return;seen.add(r.k);const d=D0.find(x=>x.name===r.dept);if(d)d.T+=1+r.comp;});
+ const D=D0.filter(d=>d.T>0),M=Math.round(C*P/100),mb=N-1,mx=N-1;
+ const k=D.map(d=>Math.floor(d.T/M)),rem=D.map((d,i)=>d.T/M-k[i]);
+ let s=k.reduce((a,b)=>a+b,0);
+ for(const i of D.map((_,i)=>i).sort((a,b)=>rem[b]-rem[a])){if(s>=mb)break;k[i]++;s++;}
+ while(s>mb){const c=D.map((_,i)=>i).filter(i=>k[i]>0).sort((a,b)=>rem[a]-rem[b])[0];k[c]--;s--;}
+ const md=[];D.forEach((d,i)=>{for(let j=0;j<k[i];j++)md.push(i);});
+ const Qa=Array.from({length:N},()=>({})),R=D.map(d=>d.T);
+ D.forEach((d,i)=>{if(!k[i])return;let j=0;md.forEach((di,b)=>{if(di!==i)return;const v=Math.min(M,Math.floor(d.T/k[i])+(j<d.T%k[i]?1:0));j++;Qa[b][d.name]=v;R[i]-=v;});});
+ const share=Math.floor(C/D.length);
+ D.forEach((d,i)=>{const m=Math.min(R[i],share);if(m>0){Qa[mx][d.name]=m;R[i]-=m;}});
+ const free=b=>C-Object.values(Qa[b]).reduce((a,x)=>a+x,0);
+ for(const i of D.map((_,i)=>i).sort((a,b)=>R[b]-R[a])){
+  while(R[i]>0){let best=-1,bf=0;
+   for(let b=0;b<mb;b++){if(md[b]===i)continue;const f=free(b);if(f>bf){bf=f;best=b;}}
+   if(best<0){bf=free(mx);if(bf>0)best=mx;}
+   if(best<0)break;
+   const x=Math.min(R[i],bf);Qa[best][D[i].name]=(Qa[best][D[i].name]||0)+x;R[i]-=x;}
+ }
+ QUOTA={};MAJ={};OPEN={};CAP=C;MIXED=N;CFG.lost=R.reduce((x,y)=>x+Math.max(0,y),0);
+ Qa.forEach((q,b)=>{const e=Object.entries(q).filter(([,v])=>v>0).sort((x,y)=>y[1]-x[1]);QUOTA[b+1]=Object.fromEntries(e);if(b<mb&&e[0]&&e[0][1]/C>=0.5)MAJ[b+1]=e[0][0];});
+ D.forEach(d=>{
+  const own=Object.keys(MAJ).filter(b=>MAJ[b]===d.name).map(Number),oth=[];
+  for(let b=1;b<=mb;b++)if(!own.includes(b)&&QUOTA[b][d.name]>0)oth.push([b,QUOTA[b][d.name]]);
+  oth.sort((x,y)=>y[1]-x[1]);const o={};
+  if(own.length){o.major=own[0];if(own[1])o.over=own[1];if(oth[0])o.minor=oth[0][0];}
+  else{if(oth[0])o.major=oth[0][0];if(oth[1])o.minor=oth[1][0];}
+  OPEN[d.name]=o;
+ });
+}
+function fillCfg(){
+ $('cN').value=CFG.N;$('cC').value=CFG.C;$('cP').value=CFG.P;
+ $('cS').innerHTML=(CFG.lost>0?'<b style="color:#d64545">⚠️ ناقص '+CFG.lost+' كرسي. زوّد عدد الاتوبيسات أو الكراسي</b><br>':'')+Object.entries(QUOTA).map(([b,q])=>'اتوبيس '+b+': '+Object.entries(q).map(([d,v])=>d+' '+v).join('، ')).join('<br>');
+}
+
+// ---------- الأشخاص والأسماء ----------
+function persons(){
+ const m=lookup($('nm').value),l=[{id:'me',kind:'me',name:m?m.name:'',dept:m?m.dept:'',comp:m?m.comp:0}];
+ S.friends.forEach((f,i)=>{const r=lookup(f.name);l.push({id:'f'+i,kind:'friend',name:r?r.name:'',dept:r?r.dept:'',comp:r?r.comp:0});});
+ return l;
+}
+function booked(p){return !!p.name&&S.mine.some(x=>x.id===NID(p.name));}
+async function statusOf(name){
+ const id=NID(name);
+ if(!S.pc[id]||Date.now()-S.pc[id].t>8000){const x=await getDoc(doc(db,'people',id));S.pc[id]={t:Date.now(),v:x.exists()?x.data():null};}
+ return S.pc[id].v;
+}
+function infoTxt(t){if(!t||!t.trim())return '';const r=lookup(t);return r?'✅ قسم '+r.dept+' · '+(r.comp?'معاك '+r.comp+' مرافق، هيتحجزلهم كراسي ورا بعض':'من غير مرافق'):'الاسم ده مش في قايمة المسجلين، اختاره من الاقتراحات';}
+function attach(inp,box,info,cb){
+ const upd=()=>{
+  const k=NORM(inp.value);box.innerHTML='';const ex=lookup(inp.value);
+  if(k.length>=2&&!ex){RI.filter(r=>r.k.includes(k)).slice(0,5).forEach(r=>{const d=document.createElement('div');d.textContent=r.name+' · '+r.dept;d.onclick=()=>{inp.value=r.name;upd();cb();};box.appendChild(d);});}
+  box.hidden=!box.children.length;info.textContent=infoTxt(inp.value);
+  if(ex){const v=inp.value;statusOf(ex.name).then(st=>{if(inp.value!==v||!st)return;info.textContent=infoTxt(v)+(st.owner===S.uid?' · ✅ محجوز: اتوبيس '+st.bus+' كراسي '+st.seats:' · ⚠️ حد صاحبك اسمه '+st.ownerName+' حجزلك: اتوبيس '+st.bus+' كراسي '+st.seats);}).catch(()=>{});}
+  cb();
+ };
+ inp.oninput=upd;upd();
+}
+function drawFriends(){
+ const box=$('frs');box.innerHTML='';
+ S.friends.forEach((f,i)=>{
+  const w=document.createElement('div'),r=document.createElement('div');r.className='fr';
+  const a=document.createElement('input');a.placeholder='اسم الصديق (من القايمة)';a.value=f.name;a.autocomplete='off';
+  const x=document.createElement('button');x.className='b';x.textContent='✕';x.onclick=()=>{S.friends.splice(i,1);drawFriends();render();};
+  const sg=document.createElement('div');sg.className='sg';sg.hidden=true;const inf=document.createElement('div');inf.className='sum';
+  r.append(a,x);w.append(r,sg,inf);box.appendChild(w);
+  attach(a,sg,inf,()=>{f.name=a.value;drawWho();render();});
+ });
+ $('addf').hidden=S.friends.length>=3;
+}
+function drawWho(){
+ const w=$('who'),cur=w.value;w.innerHTML='';
+ persons().forEach(p=>{if(p.kind==='friend'&&!p.name)return;
+  const o=document.createElement('option');o.value=p.id;o.textContent=(p.kind==='me'?'أنا':'صديقي')+(p.name?': '+p.name:'')+(booked(p)?' ✓ اتحجز':'');w.appendChild(o);});
+ if([...w.options].some(o=>o.value===cur))w.value=cur;
+}
+
+// ---------- الاتوبيسات المتاحة ----------
+function role(b,d){
+ if(b===MIXED)return 'مشكل';
+ const o=OPEN[d]||{};
+ if(b===o.major)return QUOTA[b][d]/CAP>=0.55?'أغلبية':'الأعلى نسبة';
+ if(b===o.over)return 'أغلبية (بديل)';
+ return 'أقلية';
+}
+function occ(d){
+ const o=OPEN[d]||{};if(!o.over)return;
+ const c=S.occ[d];if(c&&Date.now()-c.t<10000)return;
+ S.occ[d]={t:Date.now(),n:c?c.n:0};
+ getDoc(doc(db,'buses','b'+o.major)).then(x=>{const m=(x.exists()&&x.data().seats)||{};S.occ[d]={t:Date.now(),n:Object.values(m).filter(v=>v.dept===d).length};render();}).catch(()=>{});
+}
+function allowed(d){
+ const o=OPEN[d]||{},l=[];if(o.major)l.push(o.major);if(o.minor)l.push(o.minor);l.push(MIXED);
+ if(o.over&&o.major&&((S.occ[d]&&S.occ[d].n)||0)>=QUOTA[o.major][d])l.splice(1,0,o.over);
+ return l;
+}
+function watchBus(b){
+ if(S.watch===b)return;
+ if(S.unsub)S.unsub();S.watch=b;S.seats={};
+ S.unsub=onSnapshot(doc(db,'buses','b'+b),sn=>{S.seats=(sn.exists()&&sn.data().seats)||{};render();},()=>{$('status').hidden=false;$('status').textContent='مقدرتش أحمل الكراسي، حدّث الصفحة';});
+}
+function render(){
+ drawWho();renderAdmin();
+ const p=persons().find(x=>x.id===$('who').value)||persons()[0],tabs=$('tabs');tabs.innerHTML='';
+ const bk=$('bk');bk.hidden=!S.mine.length;bk.innerHTML='<label>حجوزاتك</label>';
+ S.mine.forEach(v=>{const d=document.createElement('div');d.className='bk';const q=rangeOf(v),c=q[1]-q[0]+1;
+  d.innerHTML='<span>✅ '+esc(v.name)+(c>1?' + '+(c-1)+' مرافق':'')+' · اتوبيس '+v.bus+' · كراسي '+esc(v.seats)+'</span>';
+  const x=document.createElement('button');x.className='b';x.textContent='إلغاء';x.onclick=()=>cancelP(v.id);d.appendChild(x);bk.appendChild(d);});
+ $('mapcard').hidden=true;
+ if(!p.dept){say('اكتب اسمك واختاره من القايمة الأول عشان تشوف الاتوبيسات');return;}
+ occ(p.dept);
+ const list=allowed(p.dept);
+ if(!list.includes(S.bus))S.bus=list[0];
+ watchBus(S.bus);
+ list.forEach(b=>{
+  const t=document.createElement('button');t.className='tab'+(b===S.bus?' on':'');
+  t.innerHTML='اتوبيس '+b+'<small>'+role(b,p.dept)+' · '+(MAJ[b]?'أغلبيته '+MAJ[b]:'مشكل')+'</small>';
+  t.onclick=()=>{S.bus=b;render();};tabs.appendChild(t);
+ });
+ $('mapcard').hidden=false;
+ $('hd').textContent=MAJ[S.bus]?'اتوبيس '+S.bus+' · أغلبيته '+MAJ[S.bus]+' ('+QUOTA[S.bus][MAJ[S.bus]]+' من '+CAP+' كرسي = '+CFG.P+'%) والباقي لأقسام تانية':'اتوبيس '+S.bus+' · مشكل لكل الأقسام';
+ const bus=$('bus');bus.innerHTML='<div class="front">🧑‍✈️ السواق · مقدمة الاتوبيس</div>';
+ let n=1;
+ while(n<=CAP){
+  const r=document.createElement('div');r.className='r';
+  const row=(CAP-n+1===5)?[0,1,2,3,4]:[0,1,'a',2,3];
+  for(const k of row){
+   if(k==='a'){const a=document.createElement('div');a.className='aisle';r.appendChild(a);continue;}
+   if(n>CAP)break;
+   const num=n++,s=S.seats[num],z=zone(S.bus,num);
+   const btn=document.createElement('button');btn.className='s';btn.textContent=num;
+   if(z!==p.dept){btn.classList.add('z');btn.title='مخصص لـ'+z;btn.onclick=()=>say('الكرسي ده مخصص لـ'+z,true);}
+   else{
+    if(s){btn.classList.add(s.owner===S.uid?'m':'t');btn.title=s.owner===S.uid?s.name:'محجوز';}
+    const bb=S.bus;btn.onclick=()=>onSeat(bb,num);
+   }
+   r.appendChild(btn);
+  }
+  bus.appendChild(r);
+ }
+ const taken=Object.values(S.seats).filter(v=>v.dept===p.dept).length;
+ $('sum').textContent='كراسي قسمك في الاتوبيس ده: '+taken+' من '+(QUOTA[S.bus][p.dept]||0);
+}
+function findWin(b,n,k,d){
+ for(let st=n;st>n-k;st--){
+  if(st<1||st+k-1>CAP)continue;let ok=true;
+  for(let i=0;i<k;i++){const q=st+i;if(zone(b,q)!==d||S.seats[q]){ok=false;break;}}
+  if(ok)return st;
+ }
+ return null;
+}
+
+// ---------- الحجز والإلغاء (Transactions: آمنة مع الزحمة) ----------
+async function retry(fn){
+ for(let i=0;;i++){
+  try{return await fn();}
+  catch(e){
+   const m=e&&e.message,c=e&&e.code;
+   if(m==='name'||m==='taken'||m==='denied')throw e;
+   if(i>=5)throw e;
+   await new Promise(r=>setTimeout(r,150+Math.random()*350*(i+1)));
+  }
+ }
+}
+async function onSeat(b,n){
+ if(S.busy)return;
+ if(!S.uid){say('استنى ثانية، بيتم الاتصال...',true);return;}
+ const s=S.seats[n];
+ if(s){
+  if(s.owner===S.uid||S.admin){if(confirm('إلغاء حجز '+s.name+'؟'))return cancelP(s.pn);}
+  say('الكرسي ده محجوز',true);return;
+ }
+ const p=persons().find(x=>x.id===$('who').value);
+ if(!p||!p.name||!p.dept){say('اكتب الاسم واختاره من قايمة المسجلين الأول',true);return;}
+ if(zone(b,n)!==p.dept){say('الكرسي ده مخصص لـ'+zone(b,n),true);return;}
+ if(p.kind==='friend'&&S.mine.filter(v=>v.kind==='friend').length>=3){say('الحد الأقصى 3 أصدقاء',true);return;}
+ const nid=NID(p.name),k=1+p.comp,st=findWin(b,n,k,p.dept);
+ if(st===null){say('مفيش '+k+' كراسي ورا بعض فاضيين جنب الكرسي ده، جرب مكان تاني',true);return;}
+ const ownerName=(lookup($('nm').value)||{name:p.name}).name;
+ S.busy=true;say('جاري الحجز...');
+ try{
+  await retry(()=>runTransaction(db,async tx=>{
+   const bref=doc(db,'buses','b'+b),pref=doc(db,'people',nid);
+   const bs=await tx.get(bref),ps=await tx.get(pref);
+   if(ps.exists())throw new Error('name');
+   const seats=(bs.exists()&&bs.data().seats)||{},add={};
+   for(let i=0;i<k;i++){if(seats[st+i])throw new Error('taken');add[st+i]={owner:S.uid,pn:nid,name:i?p.name+' (مرافق)':p.name,dept:p.dept,ts:Date.now()};}
+   tx.set(bref,{seats:add},{merge:true});
+   tx.set(pref,{name:p.name,dept:p.dept,owner:S.uid,ownerName:ownerName,kind:p.kind==='me'?'me':'friend',bus:b,seats:k>1?st+'-'+(st+k-1):''+st,k:k,ts:Date.now()});
+  }));
+  delete S.pc[nid];say('');showOk(p,b,st,k);await loadMine();
+ }catch(e){
+  const m=e&&e.message;
+  say(m==='name'?'الاسم ده اتحجز قبلك':m==='taken'?'الكرسي اتحجز قبلك بثانية، جرب كرسي تاني':'الزحمة كبيرة دلوقتي، حاول تاني',true);
+ }finally{S.busy=false;}
+}
+async function cancelP(nid){
+ if(S.busy)return;S.busy=true;
+ try{
+  await retry(()=>runTransaction(db,async tx=>{
+   const pref=doc(db,'people',nid),ps=await tx.get(pref);
+   if(!ps.exists())return;
+   const v=ps.data();if(v.owner!==S.uid&&!S.admin)throw new Error('denied');
+   const bref=doc(db,'buses','b'+v.bus),bs=await tx.get(bref),q=rangeOf(v);
+   if(bs.exists()){const u={};for(let i=q[0];i<=q[1];i++)u['seats.'+i]=deleteField();tx.update(bref,u);}
+   tx.delete(pref);
+  }));
+  delete S.pc[nid];say('تم الإلغاء');await loadMine();
+ }catch(e){say('مقدرتش ألغي، حاول تاني',true);}
+ finally{S.busy=false;}
+}
+function showOk(p,b,st,k){
+ const el=$('ok');
+ el.innerHTML='<div class="hd" style="color:var(--mine);font-size:16px">✅ تم الحجز</div><div style="font-size:15px;line-height:1.9">الاسم: <b>'+esc(p.name)+'</b><br>عدد الأشخاص: <b>'+k+'</b>'+(k>1?' (هو + '+(k-1)+' مرافق)':'')+'<br>الاتوبيس: <b>رقم '+b+'</b> · '+(MAJ[b]?'أغلبيته '+MAJ[b]:'مشكل لكل الأقسام')+'<br>الكراسي: <b>'+(k>1?st+' إلى '+(st+k-1):st)+'</b></div>';
+ const x=document.createElement('button');x.className='b';x.textContent='تمام';x.style.marginTop='8px';x.onclick=()=>{el.hidden=true;};el.appendChild(x);
+ el.hidden=false;el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function loadMine(){
+ if(!S.uid)return;
+ try{const sn=await getDocs(query(collection(db,'people'),where('owner','==',S.uid)));S.mine=sn.docs.map(d=>Object.assign({id:d.id},d.data()));}catch(e){}
+ render();
+}
+
+// ---------- الأدمن ----------
+function renderAdmin(){
+ const el=$('adm');$('cfgc').hidden=!S.admin;$('alog').hidden=!(location.hash==='#admin'&&!S.admin);
+ if(!S.admin){el.hidden=true;return;}
+ const cn=v=>{const q=rangeOf(v);return q[1]-q[0]+1;};
+ const ppl=Object.entries(S.all).map(([id,v])=>Object.assign({id:id},v)).sort((a,b)=>a.bus-b.bus||parseInt(a.seats)-parseInt(b.seats));
+ const tot=ppl.reduce((a,v)=>a+cn(v),0),byB={},byD={};
+ ppl.forEach(v=>{(byB[v.bus]=byB[v.bus]||[]).push(v);byD[v.dept]=(byD[v.dept]||0)+cn(v);});
+ const left=RI.filter(r=>!S.all[NID(r.name)]);
+ let h='<div class="hd">لوحة الأدمن · '+ppl.length+' حجز · '+tot+' كرسي</div><div class="sum">'+DEPTS.map(d=>d+': '+(byD[d]||0)).join(' · ')+'</div>';
+ for(let b=1;b<=Object.keys(QUOTA).length;b++){
+  const l=byB[b]||[],n=l.reduce((a,v)=>a+cn(v),0);
+  h+='<details><summary>اتوبيس '+b+' · '+n+' من '+CAP+'</summary>';
+  l.forEach(v=>{const c=cn(v);h+='<div class="bk"><span>'+esc(v.name)+' · '+esc(v.dept)+(c>1?' + '+(c-1)+' مرافق':'')+(v.kind==='friend'?' · حجزله '+esc(v.ownerName):'')+'</span><span>كراسي '+esc(v.seats)+' <button class="b" data-c="'+esc(v.id)+'">إلغاء</button></span></div>';});
+  h+='</details>';
+ }
+ h+='<details><summary>لسه ما حجزوش · '+left.length+'</summary>'+left.map(r=>'<div class="bk"><span>'+esc(r.name)+' · '+esc(r.dept)+'</span><span>'+(r.comp?r.comp+' مرافق':'')+'</span></div>').join('')+'</details>';
+ el.innerHTML=h;el.hidden=false;
+ el.querySelectorAll('button[data-c]').forEach(b=>{b.onclick=()=>{if(confirm('إلغاء الحجز ده؟'))cancelP(b.dataset.c);};});
+}
+
+// ---------- التشغيل ----------
+function afterAuth(u){
+ S.uid=u.uid;S.admin=!!u.email&&u.email===ADMIN_EMAIL;
+ if(!S.started){
+  S.started=true;
+  $('status').hidden=true;$('form').hidden=false;
+  onSnapshot(doc(db,'config','main'),sn=>{if(sn.exists()){const v=sn.data();buildConfig(v.N,v.C,v.P);}else buildConfig(6,49,70);fillCfg();render();});
+ }
+ if(S.admin&&!S.adminSub){S.adminSub=true;onSnapshot(collection(db,'people'),sn=>{const o={};sn.docs.forEach(d=>{o[d.id]=d.data();});S.all=o;renderAdmin();});}
+ loadMine();
+}
+buildConfig(6,49,70);fillCfg();
+attach($('nm'),$('sgm'),$('inm'),()=>{drawWho();render();});$('who').onchange=render;
+$('addf').onclick=()=>{if(S.friends.length<3){S.friends.push({name:'',dept:''});drawFriends();render();}};
+$('cA').onclick=async()=>{
+ if(S.mine.length+Object.keys(S.all).length&&!confirm('فيه حجوزات موجودة، تغيير التوزيع ممكن يبوظها. متأكد؟'))return;
+ try{await setDoc(doc(db,'config','main'),{N:+$('cN').value,C:+$('cC').value,P:+$('cP').value,ts:Date.now()});say('اتحفظت الإعدادات');}catch(e){say('مقدرتش أحفظ الإعدادات',true);}
+};
+$('ab').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('ae').value.trim(),$('ap').value);}catch(e){say('الإيميل أو الباسورد غلط',true);}};
+window.addEventListener('hashchange',render);
+render();
+onAuthStateChanged(auth,async u=>{
+ if(u){afterAuth(u);return;}
+ try{await signInAnonymously(auth);}catch(e){$('status').hidden=false;$('status').textContent='مقدرتش أتصل. تأكد إن Anonymous متفعل في Firebase Authentication.';}
+});
+</script>
+</body>
+</html>
