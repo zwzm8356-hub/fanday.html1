@@ -107,12 +107,35 @@ button.b:hover{background:rgba(255,255,255,.12);border-color:rgba(243,194,107,.5
 .bk{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:9px 0;border-top:1px solid var(--line)}
 details{border-top:1px solid var(--line);padding:8px 0}
 summary{cursor:pointer;font-size:14px;font-weight:600}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body.wait .s{cursor:progress}
+#net{margin:4px 0 8px}
+/* ===== لعبة الكراسي ===== */
+.snd{margin-inline-start:auto;flex:0 0 auto;width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--acc);display:grid;place-items:center;cursor:pointer;padding:0;transition:background .15s,border-color .15s}
+.snd:hover{background:rgba(243,194,107,.15);border-color:var(--acc)}
+.shirts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.shirts button{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:var(--c);cursor:pointer;padding:0;transition:transform .12s,box-shadow .12s}
+.shirts button:hover{transform:scale(1.12)}
+.shirts button.on{border-color:#fff;box-shadow:0 0 0 2px var(--acc)}
+.shirts button.auto{width:auto;padding:0 12px;border-radius:999px;font-size:12px;font-family:inherit;color:var(--tx);background:rgba(255,255,255,.07)}
+.lp{background:rgba(243,194,107,.6);border:1px solid var(--acc)}
+.s .fg{position:absolute;left:0;top:0;width:100%;height:100%;display:block;transform-style:preserve-3d}
+.s.drop .fg{animation:seatDrop .65s cubic-bezier(.22,1.2,.4,1) both}
+@keyframes seatDrop{0%{transform:translateZ(170px) scale(1.15)}55%{transform:translateZ(-4px) scale(.97)}75%{transform:translateZ(7px)}100%{transform:none}}
+.s.pv::before{background:rgba(243,194,107,.38);box-shadow:0 0 0 2px var(--acc),0 0 24px 6px rgba(243,194,107,.85);animation:pvPulse .9s ease-in-out infinite alternate}
+.s.pv1::before{background:rgba(243,194,107,.55);box-shadow:0 0 0 3px #fff,0 0 30px 9px rgba(243,194,107,1)}
+.s.pv u{opacity:.8}
+.s.pvx::before{background:rgba(214,69,69,.35);box-shadow:0 0 0 2px #d64545,0 0 20px 5px rgba(214,69,69,.7)}
+@keyframes pvPulse{from{opacity:.65}to{opacity:1}}
+#tip{position:fixed;z-index:50;max-width:220px;padding:7px 12px;border-radius:12px;background:#10162b;border:1px solid rgba(243,194,107,.55);color:var(--tx);box-shadow:0 12px 26px -10px rgba(0,0,0,.8);font-size:13px;line-height:1.35;text-align:center;pointer-events:none;animation:tipIn .15s ease-out}
+#tip b{display:block;font-size:14px}#tip small{display:block;color:var(--mut);font-size:11px}
+#tip.mine{border-color:var(--mine)}#tip.mine b{color:var(--mine)}
+@keyframes tipIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.s.drop .fg,.s.pv::before,#tip{animation:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top"><div class="logo"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="18" height="14" rx="3"/><path d="M3 11h18M8 3.5v7.5M16 3.5v7.5"/><circle cx="7.5" cy="14.5" r=".6"/><circle cx="16.5" cy="14.5" r=".6"/><path d="M6 17.5v2.5M18 17.5v2.5"/></svg></div><div><h1>حجز كراسي الاتوبيس</h1><p>شوف كل الكراسي من فوق، وشوف مين قاعد فين، واختار مكانك</p></div></header>
+<header class="top"><div class="logo"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="18" height="14" rx="3"/><path d="M3 11h18M8 3.5v7.5M16 3.5v7.5"/><circle cx="7.5" cy="14.5" r=".6"/><circle cx="16.5" cy="14.5" r=".6"/><path d="M6 17.5v2.5M18 17.5v2.5"/></svg></div><div><h1>حجز كراسي الاتوبيس</h1><p>شوف كل الكراسي من فوق، وشوف مين قاعد فين، واختار مكانك</p></div><button class="snd" id="snd" type="button"></button></header>
 <div id="status" class="card">جاري التحميل...</div>
 <div id="ok" class="card" hidden style="border-color:var(--mine)"></div>
 <div id="form" hidden>
@@ -122,14 +145,17 @@ summary{cursor:pointer;font-size:14px;font-weight:600}
   <div id="frs"></div>
   <button class="b" id="addf" style="margin-top:8px">+ احجز لصديق (لحد 3)</button>
  </div>
- <div class="card"><label for="who">بتحجز لمين دلوقتي؟</label><select id="who"></select></div>
+ <div class="card"><label for="who">بتحجز لمين دلوقتي؟</label><select id="who"></select>
+  <label style="margin-top:12px">لون قميص الشخصية (بيظهر للكل على الكرسي)</label><div class="shirts" id="shirts" role="radiogroup" aria-label="لون القميص"></div></div>
  <div class="card" id="bk" hidden></div>
 </div>
 <div class="tabs" id="tabs"></div>
 <div id="msg"></div>
+<div id="net" class="sum" role="status" aria-live="polite" hidden></div>
+<div id="tip" role="tooltip" hidden></div>
 <div class="card" id="mapcard" hidden>
   <div class="hd" id="hd"></div>
-  <div class="leg"><span><i class="lf"></i>متاح</span><span><i class="lt"></i>محجوز</span><span><i class="lm"></i>حجزك</span><span><i class="lz"></i>لقسم تاني / احتياطي</span></div>
+  <div class="leg"><span><i class="lf"></i>متاح</span><span><i class="lt"></i>محجوز</span><span><i class="lm"></i>حجزك</span><span><i class="lz"></i>لقسم تاني / احتياطي</span><span><i class="lp"></i>معاينة</span></div>
   <button class="vt" id="vt" type="button"></button>
   <div class="stage" id="stage"><div class="bus" id="bus"></div></div>
   <div class="sum" id="sum"></div>
@@ -182,24 +208,26 @@ const extraN=()=>Math.max(0,Math.min(9,parseInt(BUSCFG.extra)||0));
 const isExtra=b=>b>CFG.N&&b<=CFG.N+extraN();
 const bname=b=>(BUSCFG.names&&BUSCFG.names[b]&&String(BUSCFG.names[b]).trim())||'اتوبيس '+b;
 let CAP=49,MIXED=6,QUOTA={},MAJ={},OPEN={},CFG={N:6,C:49,P:70};
-const S={uid:null,admin:false,bus:null,seats:{},watch:null,unsub:null,mine:[],friends:[],busy:false,pc:{},all:{},occ:{},started:false};
+const S={uid:null,admin:false,bus:null,seats:{},watch:null,unsub:null,mine:[],friends:[],busy:false,pc:{},all:{},occ:{},started:false,pvSeat:null,pvKey:'',pvSet:[],hinting:false,hintPrev:null,tipSeat:null,tipAuto:false,tipT:0,ptype:'mouse',shirt:'',dropOK:false,synced:{},cache:{},sig:null,els:{},pdept:'',raf:0,rsig:'',cfgsig:'',busig:''};
 const $=id=>document.getElementById(id);
 const HAIR=['#14121a','#3b2417','#1c2a4f','#d9c7a3','#6d2b3a','#2d4a3e','#8a8f9c','#5b3a29'],SHIRT=['#2b3659','#7a3b4f','#3f6f6a','#b28a45','#4a4f8a','#8a4b2d'],SKIN=['#e8b894','#d49a74','#b9794f','#f1c9a5'],PANTS=['#1e2a4a','#2f3a55','#3a2e3f','#25352f'];
+const okShirt=c=>/^#[0-9a-f]{6}$/i.test(c||'')?c:'';
 const first=t=>String(t||'').replace(/\(.*?\)/g,'').trim().split(/\s+/)[0]||'';
 function box(x,y,z,w,d,h,k,f,rd){const st=' style="--x:'+x+';--y:'+y+';--z:'+z+';--w:'+w+';--d:'+d+';--h:'+h+';--k:'+k+';--rd:'+(rd||0)+'px"';return [...f].map(c=>'<u class="'+c+'"'+st+'></u>').join('');}
 function seatHtml(n,s,mine){
  let h=box(4,2,0,38,36,13,'var(--f)','abcd',7)+box(3,37,0,40,12,46,'var(--f)','abcd',9)+box(11,38,46,24,10,13,'var(--fl)','ab',6)+box(0,8,0,5,28,19,'#2a3563','ac',2)+box(41,8,0,5,28,19,'#2a3563','ad',2);
- if(s){const sh=SHIRT[(n*5)%6];
-  h+=box(11,8,13,24,24,7,PANTS[n%4],'a',4)+box(8,28,13,30,10,38,sh,'ab',8)+box(4,22,20,5,14,8,sh,'a',3)+box(37,22,20,5,14,8,sh,'a',3)+'<i class="hdd" style="--hc:'+HAIR[(n*7)%8]+';--sk:'+SKIN[(n*3)%4]+'"></i>';}
+ if(s){const sh=okShirt(s.shirt)||SHIRT[(n*5)%6];
+  h+='<span class="fg">'+box(11,8,13,24,24,7,PANTS[n%4],'a',4)+box(8,28,13,30,10,38,sh,'ab',8)+box(4,22,20,5,14,8,sh,'a',3)+box(37,22,20,5,14,8,sh,'a',3)+'<i class="hdd" style="--hc:'+HAIR[(n*7)%8]+';--sk:'+SKIN[(n*3)%4]+'"></i></span>';}
  return h+'<b class="bn">'+(s?esc(mine?'أنت':first(s.name)):n)+'</b>';
 }
 
 const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function NORM(t){return t.trim().replace(/[\u064B-\u065F]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/\s+/g,' ').toLowerCase();}
 function NID(t){const x=NORM(t);let a=2166136261,c=5381;for(const ch of x){a^=ch.charCodeAt(0);a=Math.imul(a,16777619)>>>0;c=(Math.imul(c,33)^ch.charCodeAt(0))>>>0;}return 'p'+a.toString(36)+c.toString(36);}
+const rsigOf=l=>JSON.stringify(l.map(r=>[String(r[0]),r[1],r[2]|0]));
 let RI=[];
 function setRoster(l){
- ROSTER=l;const cnt={},tot={};l.forEach(r=>{const k=NORM(r[0]);tot[k]=(tot[k]||0)+1;});
+ ROSTER=l;S.rsig=rsigOf(l);const cnt={},tot={};l.forEach(r=>{const k=NORM(r[0]);tot[k]=(tot[k]||0)+1;});
  RI=l.map(r=>{const k=NORM(r[0]);cnt[k]=(cnt[k]||0)+1;const o=cnt[k],dup=tot[k]>1;
   const label=dup?r[0]+' ('+r[1]+' · '+(r[2]?r[2]+' مرافق':'بدون مرافق')+')':r[0];
   return {name:r[0],dept:r[1],comp:r[2],k:k,occ:o,dup:dup,key:o>1?k+'#'+o:k,id:o>1?NID(r[0]+' #'+o):NID(r[0]),label:label,lk:NORM(label)};});
@@ -208,7 +236,7 @@ function setRoster(l){
 setRoster(ROSTER);
 function rebuild(){buildConfig(CFG.N,CFG.C,CFG.P);fillCfg();render();}
 function lookup(t){const k=NORM(t||'');return k?RI.find(r=>r.lk===k)||null:null;}
-function say(t,bad){const m=$('msg');m.textContent=t||'';m.style.color=bad?'#d64545':'var(--mine)';}
+function say(t,bad){S.hinting=false;const m=$('msg');m.textContent=t||'';m.style.color=bad?'#d64545':'var(--mine)';}
 function zone(b,n,d){if(isExtra(b))return d!==undefined?d:'مفتوح';let a=0;for(const [d,q] of Object.entries(QUOTA[b]||{})){a+=q;if(n<=a)return d;}return 'احتياطي';}
 function rangeOf(v){const q=String(v.seats).split('-').map(Number);return q.length>1?[q[0],q[1]]:[q[0],q[0]];}
 
@@ -271,10 +299,17 @@ function persons(){
  return l;
 }
 function booked(p){return !!p.nid&&S.mine.some(x=>x.id===p.nid);}
-async function statusOf(id){
- if(!S.pc[id]||Date.now()-S.pc[id].t>8000){const x=await getDoc(doc(db,'people',id));S.pc[id]={t:Date.now(),v:x.exists()?x.data():null};}
- return S.pc[id].v;
+const PC_TTL=25000;
+function statusOf(id){
+ const m=S.mine.find(x=>x.id===id);if(m)return Promise.resolve(m); // حجزي موجود محلياً: من غير قراءة
+ const c=S.pc[id];
+ if(c&&(c.p||Date.now()-c.t<PC_TTL))return c.p||Promise.resolve(c.v);
+ const e={t:Date.now(),v:null,p:null};
+ e.p=getDoc(doc(db,'people',id)).then(x=>{const v=x.exists()?x.data():null;if(S.pc[id]===e)S.pc[id]={t:Date.now(),v:v};return v;}).catch(err=>{if(S.pc[id]===e)delete S.pc[id];throw err;});
+ S.pc[id]=e;return e.p;
 }
+let rsT=0;function renderSoon(){clearTimeout(rsT);rsT=setTimeout(render,60);}
+let admT=0;function queueAdmin(){if(admT)return;admT=setTimeout(()=>{admT=0;renderAdmin();},350);}
 function infoTxt(t){if(!t||!t.trim())return '';const r=lookup(t);return r?'✅ قسم '+r.dept+' · '+(r.comp?'معاك '+r.comp+' مرافق، هيتحجزلهم كراسي ورا بعض':'من غير مرافق'):(RI.some(x=>x.k===NORM(t))?'الاسم ده متكرر في القايمة، اختار الصح من الاقتراحات (بيفرق بالقسم وعدد المرافقين)':'الاسم ده مش في قايمة المسجلين، اختاره من الاقتراحات');}
 function attach(inp,box,info,cb){
  const upd=()=>{
@@ -294,15 +329,17 @@ function drawFriends(){
   const x=document.createElement('button');x.className='b';x.textContent='✕';x.onclick=()=>{S.friends.splice(i,1);drawFriends();render();};
   const sg=document.createElement('div');sg.className='sg';sg.hidden=true;const inf=document.createElement('div');inf.className='sum';
   r.append(a,x);w.append(r,sg,inf);box.appendChild(w);
-  attach(a,sg,inf,()=>{f.name=a.value;drawWho();render();});
+  attach(a,sg,inf,()=>{f.name=a.value;renderSoon();});
  });
  $('addf').hidden=S.friends.length>=3;
 }
 function drawWho(){
- const w=$('who'),cur=w.value;w.innerHTML='';
+ const w=$('who'),cur=w.value,opts=[];
  persons().forEach(p=>{if(p.kind==='friend'&&!p.name)return;
-  const o=document.createElement('option');o.value=p.id;o.textContent=(p.kind==='me'?'أنا':'صديقي')+(p.name?': '+(p.lab||p.name):'')+(booked(p)?' ✓ اتحجز':'');w.appendChild(o);});
- if([...w.options].some(o=>o.value===cur))w.value=cur;
+  opts.push([p.id,(p.kind==='me'?'أنا':'صديقي')+(p.name?': '+(p.lab||p.name):'')+(booked(p)?' ✓ اتحجز':'')]);});
+ const key=JSON.stringify(opts);if(w._k===key)return;w._k=key;
+ w.innerHTML='';opts.forEach(x=>{const o=document.createElement('option');o.value=x[0];o.textContent=x[1];w.appendChild(o);});
+ if(opts.some(x=>x[0]===cur))w.value=cur;
 }
 
 // ---------- الاتوبيسات المتاحة ----------
@@ -316,9 +353,10 @@ function role(b,d){
 }
 function occ(d){
  const o=OPEN[d]||{};if(!o.over)return;
+ if(S.watch===o.major){S.occ[d]={t:Date.now(),n:cntDept(S.seats,d)};return;} // الاتوبيس مراقَب بالفعل: من غير قراءة
  const c=S.occ[d];if(c&&Date.now()-c.t<10000)return;
- S.occ[d]={t:Date.now(),n:c?c.n:0};
- getDoc(doc(db,'buses','b'+o.major)).then(x=>{const m=(x.exists()&&x.data().seats)||{};S.occ[d]={t:Date.now(),n:Object.values(m).filter(v=>v.dept===d).length};render();}).catch(()=>{});
+ const prev=c?c.n:0;S.occ[d]={t:Date.now(),n:prev};
+ getDoc(doc(db,'buses','b'+o.major)).then(x=>{const m=(x.exists()&&x.data().seats)||{},n=cntDept(m,d);S.occ[d]={t:Date.now(),n:n};if(n!==prev)render();}).catch(()=>{});
 }
 function allowed(d){
  const o=OPEN[d]||{};let l=[];if(o.major)l.push(o.major);if(o.minor)l.push(o.minor);l.push(MIXED);
@@ -331,32 +369,26 @@ function allowed(d){
 }
 function watchBus(b){
  if(S.watch===b)return;
- if(S.unsub)S.unsub();S.watch=b;S.seats={};
- S.unsub=onSnapshot(doc(db,'buses','b'+b),sn=>{S.seats=(sn.exists()&&sn.data().seats)||{};render();},()=>{$('status').hidden=false;$('status').textContent='مقدرتش أحمل الكراسي، حدّث الصفحة';});
+ if(S.unsub)S.unsub();S.watch=b;S.seats=S.cache[b]||{};S.dropOK=false;
+ S.unsub=onSnapshot(doc(db,'buses','b'+b),sn=>{
+  const m=(sn.exists()&&sn.data().seats)||{};const first1=!S.synced[b];S.synced[b]=true;S.cache[b]=m;
+  if(S.watch!==b)return;S.seats=m;S.dropOK=!first1;queueSeats();
+ },()=>{$('status').hidden=false;$('status').textContent='مقدرتش أحمل الكراسي، حدّث الصفحة';});
 }
-function render(){
- drawWho();renderAdmin();
- const p=persons().find(x=>x.id===$('who').value)||persons()[0],tabs=$('tabs');tabs.innerHTML='';
- const bk=$('bk');bk.hidden=!S.mine.length;bk.innerHTML='<label>حجوزاتك</label>';
- S.mine.forEach(v=>{const d=document.createElement('div');d.className='bk';const c=seatList(v).length;
-  d.innerHTML='<span>✅ '+esc(v.name)+(c>1?' + '+(c-1)+' مرافق':'')+' · '+esc(bname(v.bus))+' · كراسي '+esc(v.seats)+'</span>';
-  const x=document.createElement('button');x.className='b';x.textContent='إلغاء';x.onclick=()=>cancelP(v.id);d.appendChild(x);bk.appendChild(d);});
- $('mapcard').hidden=true;
- if(!p.dept){say('اكتب اسمك واختاره من القايمة الأول عشان تشوف الاتوبيسات');return;}
- occ(p.dept);
- const list=allowed(p.dept);
- if(!list.length){say('مفيش اتوبيس متاح لقسمك دلوقتي، كلّم المسؤول',true);return;}
- if(!list.includes(S.bus))S.bus=list[0];
- watchBus(S.bus);
- list.forEach(b=>{
-  const t=document.createElement('button');t.className='tab'+(b===S.bus?' on':'');
-  t.innerHTML=esc(bname(b))+'<small>'+role(b,p.dept)+' · '+(MAJ[b]?'أغلبيته '+MAJ[b]:'مشكل')+'</small>';
-  t.onclick=()=>{S.bus=b;render();};tabs.appendChild(t);
- });
- $('mapcard').hidden=false;
- $('hd').textContent=MAJ[S.bus]?bname(S.bus)+' · أغلبيته '+MAJ[S.bus]+' ('+QUOTA[S.bus][MAJ[S.bus]]+' من '+CAP+' كرسي = '+CFG.P+'%) والباقي لأقسام تانية':bname(S.bus)+(isExtra(S.bus)?' · اتوبيس إضافي مفتوح لكل الأقسام':' · مشكل لكل الأقسام');
- const bus=$('bus');bus.innerHTML='<div class="front"><i class="dash"></i><i class="sw"></i><i class="ds"></i><i class="dh"></i><b class="dl">السواق</b><i class="ws"></i><i class="mr ml"></i><i class="mr mrr"></i><i class="fd">الباب الأمامي</i><i class="fds"></i></div><i class="wh f1"></i><i class="wh f2"></i><i class="wh r1"></i><i class="wh r2"></i>';let PZ=null;
- let doorRow=null;
+function cntDept(m,d){let n=0;for(const k in m)if(m[k]&&m[k].dept===d)n++;return n;}
+// تحديثات الكراسي الحية بتتجمع في فريم واحد وبتعدّل العناصر الموجودة بس
+function queueSeats(){if(S.raf)return;S.raf=requestAnimationFrame(()=>{S.raf=0;seatsChanged();});}
+function seatsChanged(){
+ if($('mapcard').hidden||!S.sig)return;
+ const d=S.pdept,o=OPEN[d]||{};
+ if(o.over&&o.major&&S.watch===o.major){const c=S.occ[d];if(!c||c.n!==cntDept(S.seats,d)){render();return;}}
+ paintSeats();
+}
+function busSig(){return S.bus+'|'+CAP+'|'+(isExtra(S.bus)?'x':'')+'|'+JSON.stringify(QUOTA[S.bus]||{});}
+function buildBus(){
+ resetHover();const bus=$('bus');bus.innerHTML='<div class="front"><i class="dash"></i><i class="sw"></i><i class="ds"></i><i class="dh"></i><b class="dl">السواق</b><i class="ws"></i><i class="mr ml"></i><i class="mr mrr"></i><i class="fd">الباب الأمامي</i><i class="fds"></i></div><i class="wh f1"></i><i class="wh f2"></i><i class="wh r1"></i><i class="wh r2"></i>';
+ let PZ=null,doorRow=null;S.els={};
+ const frag=document.createDocumentFragment();
  for(const row of LAY().rows){
   const r=document.createElement('div');r.className='r';
   if(row.pk==='D')doorRow=r;
@@ -364,25 +396,95 @@ function render(){
    if(c==='e'){const e=document.createElement('div');e.className='sp';r.appendChild(e);continue;}
    if(c==='door'){const dd=document.createElement('div');dd.className='doorbox';dd.textContent='الباب';r.appendChild(dd);continue;}
    if(typeof c==='object'){const a=document.createElement('div');a.className='aisle';const zn=zone(S.bus,c.a);if(zn!==PZ){PZ=zn;a.textContent=zn;}r.appendChild(a);continue;}
-   const num=c,s=S.seats[num],z=zone(S.bus,num,p.dept);
-   const btn=document.createElement('div');btn.className='s';btn.dataset.n=num;btn.tabIndex=0;btn.setAttribute('role','button');btn.setAttribute('aria-label','كرسي '+num);btn.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();btn.click();}};
-   if(z!==p.dept){btn.classList.add('z');btn.title='مخصص لـ'+z;btn.onclick=()=>say('الكرسي ده مخصص لـ'+z,true);}
-   else{
-    if(s){btn.classList.add(s.owner===S.uid?'m':'t');btn.title=s.owner===S.uid?s.name:'محجوز';}
-    const bb=S.bus;btn.onclick=()=>onSeat(bb,num);
-   }
-   btn.innerHTML=seatHtml(num,s,s&&s.owner===S.uid);if(s){btn.classList.add('hp');if(s.owner!==S.uid){btn.classList.add('tk');btn.title=s.name||'محجوز';}}
-   r.appendChild(btn);
+   const num=c,btn=document.createElement('div');btn.className='s';btn.dataset.n=num;btn.tabIndex=0;btn.setAttribute('role','button');btn.setAttribute('aria-label','كرسي '+num);
+   btn.onkeydown=e=>{S.ptype='key';if(e.key==='Enter'||e.key===' '){e.preventDefault();btn.click();}};
+   btn.onpointerdown=e=>{S.ptype=e.pointerType==='touch'?'touch':'mouse';};
+   btn.onpointerenter=e=>{if(e.pointerType==='touch')return;S.ptype='mouse';enterSeat(num);};
+   btn.onpointerleave=e=>{if(e.pointerType==='touch')return;leaveSeat(num);};
+   btn.onfocus=()=>{if(S.ptype==='touch')return;enterSeat(num);};
+   btn.onblur=()=>leaveSeat(num);
+   btn.onclick=()=>{
+    const s=S.seats[num];
+    if(btn.classList.contains('z')){if(S.ptype==='touch')showTip(num,true);say('الكرسي ده مخصص لـ'+btn._z,true);return;}
+    // على اللمس: الضغطة الأولى معاينة، والتانية على نفس الكرسي تأكيد
+    if(!s&&S.ptype==='touch'&&S.pvSeat!==num){enterSeat(num);if(S.pvSeat===num){sfx('select');return;}}
+    if(s&&S.ptype==='touch')showTip(num,true);
+    onSeat(S.bus,num);
+   };
+   S.els[num]=btn;r.appendChild(btn);
   }
-  bus.appendChild(r);
+  frag.appendChild(r);
  }
- const rr=document.createElement('div');rr.className='rear';rr.textContent='الخلف';bus.appendChild(rr);
+ const rr=document.createElement('div');rr.className='rear';rr.textContent='الخلف';frag.appendChild(rr);
+ bus.appendChild(frag);
  if(doorRow){const t=doorRow.offsetTop,g1=t-100,g2=g1+doorRow.offsetHeight,ds=document.createElement('i');ds.className='dstrip';ds.style.top=t+'px';ds.style.height=doorRow.offsetHeight+'px';bus.appendChild(ds);
   bus.style.setProperty('--wm','linear-gradient(180deg,#000 '+g1+'px,transparent '+g1+'px,transparent '+g2+'px,#000 '+g2+'px)');}
  else bus.style.removeProperty('--wm');
  setFlat();fitStage();
- const taken=Object.values(S.seats).filter(v=>v.dept===p.dept).length;
- $('sum').textContent='كراسي قسمك في الاتوبيس ده: '+taken+(isExtra(S.bus)?'':' من '+((QUOTA[S.bus]||{})[p.dept]||0));
+}
+// تحديث حالة كل كرسي في مكانه (free / taken / mine / zone-locked) من غير إعادة بناء الشجرة
+function paintSeats(){
+ const dept=S.pdept,b=S.bus;let drops=0;
+ for(const k in S.els){
+  const num=+k,btn=S.els[k],s=S.seats[num],mine=!!s&&s.owner===S.uid,z=zone(b,num,dept),zl=z!==dept;
+  let title='';
+  if(zl)title='مخصص لـ'+z;
+  else if(s&&mine)title=s.name||'';
+  if(s&&!mine)title=s.name||'محجوز';
+  const fk=(zl?1:0)+''+(s&&!zl&&mine?1:0)+(s&&!zl&&!mine?1:0)+(s?1:0)+(s&&!mine?1:0)+'|'+title;
+  btn._z=z;
+  if(btn._fk!==fk){
+   btn._fk=fk;
+   btn.classList.toggle('z',zl);btn.classList.toggle('m',!!s&&!zl&&mine);btn.classList.toggle('t',!!s&&!zl&&!mine);
+   btn.classList.toggle('hp',!!s);btn.classList.toggle('tk',!!s&&!mine);
+   if(title)btn.title=title;else btn.removeAttribute('title');
+   btn.setAttribute('aria-label','كرسي '+num+(s?(mine?' - حجزك':' - محجوز'):(zl?' - مخصص لـ'+z:' - متاح')));
+  }
+  const ik=seatIk(s,mine);
+  if(!btn._pv&&btn._ik!==ik){
+   const was=btn._ik;btn._ik=ik;btn.innerHTML=seatHtml(num,s,mine);
+   if(was===''&&ik&&S.dropOK&&drops<8&&!RM.matches){drops++;btn.classList.add('drop');} // نزول الشخصية على الكرسي الجديد
+  }
+ }
+ const t='كراسي قسمك في الاتوبيس ده: '+cntDept(S.seats,dept)+(isExtra(b)?'':' من '+((QUOTA[b]||{})[dept]||0)),sm=$('sum');
+ if(sm.textContent!==t)sm.textContent=t;
+ if(S.pvSeat!=null)previewSeat(S.pvSeat);
+ if(S.tipSeat!=null)refreshTip();
+}
+function render(){
+ drawWho();renderAdmin();
+ const p=persons().find(x=>x.id===$('who').value)||persons()[0],tabs=$('tabs');
+ const clr=()=>{tabs.innerHTML='';tabs._k='';$('mapcard').hidden=true;};
+ const bk=$('bk'),bkey=JSON.stringify(S.mine.map(v=>[v.id,v.name,v.bus,v.seats,bname(v.bus)]));
+ bk.hidden=!S.mine.length;
+ if(bk._k!==bkey){
+  bk._k=bkey;bk.innerHTML='<label>حجوزاتك</label>';
+  S.mine.forEach(v=>{const d=document.createElement('div');d.className='bk';const c=seatList(v).length;
+   d.innerHTML='<span>✅ '+esc(v.name)+(c>1?' + '+(c-1)+' مرافق':'')+' · '+esc(bname(v.bus))+' · كراسي '+esc(v.seats)+'</span>';
+   const x=document.createElement('button');x.className='b';x.textContent='إلغاء';x.onclick=()=>cancelP(v.id);d.appendChild(x);bk.appendChild(d);});
+ }
+ if(!p.dept){clr();say('اكتب اسمك واختاره من القايمة الأول عشان تشوف الاتوبيسات');return;}
+ occ(p.dept);
+ const list=allowed(p.dept);
+ if(!list.length){clr();say('مفيش اتوبيس متاح لقسمك دلوقتي، كلّم المسؤول',true);return;}
+ if(!list.includes(S.bus))S.bus=list[0];
+ watchBus(S.bus);
+ const tkey=S.bus+'#'+list.map(b=>b+'~'+bname(b)+'~'+role(b,p.dept)+'~'+(MAJ[b]||'')).join('|');
+ if(tabs._k!==tkey){
+  tabs._k=tkey;tabs.innerHTML='';
+  list.forEach(b=>{
+   const t=document.createElement('button');t.className='tab'+(b===S.bus?' on':'');
+   t.innerHTML=esc(bname(b))+'<small>'+role(b,p.dept)+' · '+(MAJ[b]?'أغلبيته '+MAJ[b]:'مشكل')+'</small>';
+   t.onclick=()=>{S.bus=b;render();};tabs.appendChild(t);
+  });
+ }
+ $('mapcard').hidden=false;
+ const ht=MAJ[S.bus]?bname(S.bus)+' · أغلبيته '+MAJ[S.bus]+' ('+QUOTA[S.bus][MAJ[S.bus]]+' من '+CAP+' كرسي = '+CFG.P+'%) والباقي لأقسام تانية':bname(S.bus)+(isExtra(S.bus)?' · اتوبيس إضافي مفتوح لكل الأقسام':' · مشكل لكل الأقسام');
+ if($('hd')._t!==ht){$('hd')._t=ht;$('hd').textContent=ht;}
+ // نعيد بناء الاتوبيس بس لو الاتوبيس أو التخطيط أو الحصص اتغيروا، غير كده نعدّل الكراسي في مكانها
+ const sg=busSig();
+ if(sg!==S.sig){buildBus();S.sig=sg;}
+ S.pdept=p.dept;paintSeats();
 }
 const ROWS={5:[0,1,2,3,4],4:[0,1,'a',2,3],3:[0,'e','a',1,2],2:['e','e','a',0,1],1:['e','e','a',0,'e'],D:['door','a',0,1]};
 function planOf(C){
@@ -455,20 +557,171 @@ function setFlat(){
 function fitStage(){const h=$('bus').offsetHeight;$('stage').style.height=(FLAT?h+14:Math.round(h*.68+110))+'px';}
 $('vt').onclick=()=>{FLAT=!FLAT;setFlat();fitStage();};
 
+// ---------- لعبة الكراسي: معاينة · فقاعة · لون القميص · صوت ----------
+const RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
+const SHIRTS=[['#e5484d','أحمر'],['#f97316','برتقالي'],['#facc15','أصفر'],['#22c55e','أخضر'],['#06b6d4','تركواز'],['#3b82f6','أزرق'],['#8b5cf6','بنفسجي'],['#ec4899','وردي'],['#f1f5f9','أبيض'],['#475569','رمادي']];
+try{S.shirt=SHIRTS.some(x=>x[0]===localStorage.getItem('busShirt'))?localStorage.getItem('busShirt'):'';}catch(e){}
+function drawShirts(){
+ const box=$('shirts');box.innerHTML='';
+ const mk=(c,name)=>{
+  const b=document.createElement('button'),on=c===S.shirt;b.type='button';b.setAttribute('role','radio');b.setAttribute('aria-checked',on?'true':'false');b.title=name;b.setAttribute('aria-label',name);
+  if(on)b.classList.add('on');
+  if(c)b.style.setProperty('--c',c);else{b.classList.add('auto');b.textContent='تلقائي';}
+  b.onclick=()=>{S.shirt=c;try{localStorage.setItem('busShirt',c);}catch(e){}sfx('select');drawShirts();if(S.pvSeat!=null){S.pvKey='';previewSeat(S.pvSeat);}};
+  box.appendChild(b);
+ };
+ mk('','تلقائي');SHIRTS.forEach(x=>mk(x[0],x[1]));
+}
+const seatIk=(s,mine)=>s?(mine?'M':'T'+first(s.name))+'|'+(okShirt(s.shirt)||''):'';
+const curPerson=()=>persons().find(x=>x.id===$('who').value)||null;
+
+// صوت مُصطنع بـ Web Audio (من غير ملفات). بيشتغل بعد أول تفاعل من المستخدم
+const SND={ctx:null,muted:false,armed:false,last:0};
+try{SND.muted=localStorage.getItem('busMute')==='1';}catch(e){}
+['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,()=>{SND.armed=true;},{once:true,passive:true,capture:true}));
+function actx(){
+ if(SND.muted||!SND.armed)return null;
+ try{
+  if(!SND.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;SND.ctx=new C();}
+  if(SND.ctx.state==='suspended')SND.ctx.resume();
+  return SND.ctx;
+ }catch(e){return null;}
+}
+function tone(f,d,type,v,at,to){
+ const c=actx();if(!c)return;
+ try{
+  const t0=c.currentTime+(at||0),o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t0);if(to)o.frequency.exponentialRampToValueAtTime(to,t0+d);
+  g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(v||.05,t0+.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+d+.03);
+ }catch(e){}
+}
+function sfx(k){
+ if(SND.muted)return;
+ if(k==='hover')tone(660,.05,'sine',.022);
+ else if(k==='select'){tone(520,.07,'triangle',.05);tone(780,.09,'triangle',.05,.06);}
+ else if(k==='confirm'){[523,659,784,1046].forEach((f,i)=>tone(f,.16,'sine',.06,i*.1));}
+ else if(k==='cancel'){tone(520,.12,'sine',.05,0,300);tone(330,.16,'sine',.05,.1,200);}
+ else if(k==='deny')tone(180,.18,'square',.03);
+}
+const ICON_ON='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg>',
+ ICON_OFF='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
+function drawSnd(){
+ const b=$('snd'),t=SND.muted?'تشغيل الصوت':'كتم الصوت';
+ b.innerHTML=SND.muted?ICON_OFF:ICON_ON;b.setAttribute('aria-pressed',SND.muted?'true':'false');b.title=t;b.setAttribute('aria-label',t);
+}
+$('snd').onclick=()=>{SND.armed=true;SND.muted=!SND.muted;try{localStorage.setItem('busMute',SND.muted?'1':'0');}catch(e){}drawSnd();if(!SND.muted)sfx('select');};
+
+// تلميح في #msg (بيرجّع الرسالة القديمة لما المعاينة تخلص)
+function hint(t,bad){const m=$('msg');if(!S.hinting){S.hintPrev={t:m.textContent,c:m.style.color};S.hinting=true;}m.textContent=t;m.style.color=bad?'#d64545':'var(--acc)';}
+function clearHint(){if(!S.hinting)return;S.hinting=false;const m=$('msg'),h=S.hintPrev||{t:'',c:''};m.textContent=h.t;m.style.color=h.c;}
+function whereTxt(grp){
+ const L=LAY(),a=grp.map(q=>L.at[q]).filter(Boolean);if(!a.length)return '';
+ const sd=a[0].side;
+ if(sd==='B')return grp.length>1?'جنب بعض في الدكة الورانية':'في الدكة الورانية';
+ const sn=sd==='R'?'الجهة اليمين':'الجهة الشمال';
+ if(grp.length===1)return sn;
+ const rows=new Set(a.map(x=>x.row));
+ return (rows.size===1?'جنب بعض في نفس الصف':rows.size===grp.length?'ورا بعض في نفس العمود':'أزواج جنب بعض وورا بعض')+' · '+sn;
+}
+function restoreSeat(q){
+ const el=S.els[q];if(!el)return;
+ el.classList.remove('pv','pv1','pvx');
+ if(el._pv){el._pv=false;const s=S.seats[q],mine=!!s&&s.owner===S.uid;el._ik=seatIk(s,mine);el.innerHTML=seatHtml(q,s,mine);}
+}
+function clearPreview(keepHint){
+ const set=S.pvSet;S.pvSet=[];S.pvSeat=null;S.pvKey='';
+ set.forEach(restoreSeat);
+ if(!keepHint)clearHint();
+}
+// معاينة الكراسي اللي هتتحجز فعلاً (نفس findWin بتاع الحجز)
+function previewSeat(num){
+ const btn=S.els[num];if(!btn)return;
+ if(S.seats[num]||btn.classList.contains('z')){clearPreview();return;}
+ const p=curPerson();
+ if(!p||!p.name||!p.dept){clearPreview();return;}
+ const k=1+p.comp,grp=findWin(S.bus,num,k,p.dept),key=num+'|'+(grp?grp.join(','):'x')+'|'+p.id+'|'+S.shirt;
+ if(key===S.pvKey&&S.pvSeat===num)return;
+ clearPreview(true);S.pvSeat=num;S.pvKey=key;
+ if(!grp){btn.classList.add('pvx');S.pvSet=[num];hint('مفيش '+k+' كراسي فاضيين مترتبين حوالين الكرسي ده، جرب مكان تاني',true);return;}
+ S.pvSet=grp.slice();
+ grp.forEach(q=>{
+  const el=S.els[q];if(!el)return;
+  el._pv=true;el.classList.add('pv');if(q===num)el.classList.add('pv1');
+  el.innerHTML=seatHtml(q,{name:q===num?first(p.name):'+',shirt:S.shirt},q===num&&p.kind==='me');
+ });
+ hint((p.kind==='friend'?first(p.name)+' · ':'')+(k===1?'كرسي '+num+' · '+whereTxt(grp):'كرسي '+num+' ومعاك '+(k-1)+' مرافق ← الكراسي '+fmtSeats(grp)+' · '+whereTxt(grp))+(S.ptype==='touch'?' · اضغط تاني للتأكيد':''));
+}
+// فقاعة معلومات الكرسي
+function fillTip(num){
+ const btn=S.els[num],s=S.seats[num],tip=$('tip');if(!btn)return false;
+ let a='',b2='',mine=false;
+ if(s){
+  if(s.owner===S.uid){mine=true;a='مكاني';b2=(s.name||'')+(s.dept?' · '+s.dept:'');}
+  else{a=s.name||'محجوز';b2=s.dept?'قسم '+s.dept:'';}
+ }else if(btn.classList.contains('z'))a='مخصص لـ'+btn._z;
+ else return false;
+ tip.textContent='';tip.className=mine?'mine':'';
+ const x=document.createElement('b');x.textContent=a;tip.appendChild(x);
+ if(b2){const y=document.createElement('small');y.textContent=b2;tip.appendChild(y);}
+ return true;
+}
+function placeTip(num){
+ const btn=S.els[num],tip=$('tip');if(!btn)return;
+ const r=btn.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;
+ let top=r.top-h-8;if(top<6)top=r.bottom+8;
+ tip.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left+r.width/2-w/2))+'px';tip.style.top=top+'px';
+}
+function showTip(num,auto){
+ clearTimeout(S.tipT);
+ if(!fillTip(num)){hideTip();return;}
+ const tip=$('tip');tip.hidden=false;S.tipSeat=num;S.tipAuto=!!auto;placeTip(num);
+ if(auto)S.tipT=setTimeout(hideTip,2600);
+}
+function refreshTip(){if(S.tipSeat==null)return;if(!fillTip(S.tipSeat))hideTip();else placeTip(S.tipSeat);}
+function hideTip(){clearTimeout(S.tipT);S.tipSeat=null;const t=$('tip');if(t)t.hidden=true;}
+function resetHover(){S.pvSet=[];S.pvSeat=null;S.pvKey='';hideTip();clearHint();}
+function enterSeat(num){
+ const btn=S.els[num];if(!btn)return;
+ if(S.seats[num]||btn.classList.contains('z')){clearPreview();showTip(num);return;}
+ hideTip();
+ const before=S.pvKey;previewSeat(num);
+ if(S.pvKey!==before&&!RM.matches){const n=Date.now();if(n-SND.last>70){SND.last=n;sfx('hover');}}
+}
+function leaveSeat(num){if(S.pvSeat===num)clearPreview();if(S.tipSeat===num)hideTip();}
+window.addEventListener('scroll',hideTip,{passive:true});
+$('bus').addEventListener('animationend',e=>{const s=e.target.closest&&e.target.closest('.s');if(s)s.classList.remove('drop');});
+drawShirts();drawSnd();
+
 // ---------- الحجز والإلغاء (Transactions: آمنة مع الزحمة) ----------
-async function retry(fn){
- for(let i=0;;i++){
-  try{return await fn();}
-  catch(e){
-   const m=e&&e.message,c=e&&e.code;
-   if(m==='name'||m==='taken'||m==='denied')throw e;
-   if(i>=5)throw e;
-   await new Promise(r=>setTimeout(r,150+Math.random()*350*(i+1)));
+const HIGH='جاري تأكيد الحجز وسط ضغط عالي...',HIGH_C='جاري تأكيد الإلغاء وسط ضغط عالي...';
+function netHint(t){const n=$('net');if(!n)return;n.textContent=t||'';n.hidden=!t;}
+function setBusy(v){S.busy=v;document.body.classList.toggle('wait',v);}
+const FATAL_MSG=new Set(['name','taken','denied']),FATAL_CODE=new Set(['permission-denied','unauthenticated','invalid-argument','unimplemented']);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+// إعادة محاولة لطيفة: backoff أُسّي + jitter، لحد 7 محاولات. الأخطاء النهائية (اسم محجوز / كرسي محجوز / صلاحيات) بتفشل فوراً
+async function retry(fn,txt){
+ const MAX=7;let shown=false;
+ try{
+  for(let i=0;;i++){
+   try{return await fn();}
+   catch(e){
+    const m=e&&e.message,c=e&&e.code;
+    if(FATAL_MSG.has(m)||FATAL_CODE.has(c)||i>=MAX-1)throw e;
+    if(!shown){shown=true;netHint(txt||HIGH);}
+    const cap=Math.min(2500,150*Math.pow(2,i));
+    await wait(cap/2+Math.random()*cap/2);
+   }
   }
- }
+ }finally{if(shown)netHint('');}
+}
+// لو العملية أخدت وقت (Firestore بطيء) نظهر تلميح خفيف من غير ما نقفل الصفحة
+async function slowHint(p,txt){
+ const t=setTimeout(()=>netHint(txt||HIGH),2500);
+ try{return await p;}finally{clearTimeout(t);netHint('');}
 }
 async function onSeat(b,n){
- if(S.busy)return;
+ if(S.busy){say('استنى ثانية، فيه طلب شغال دلوقتي...');return;}
  if(!S.uid){say('استنى ثانية، بيتم الاتصال...',true);return;}
  const s=S.seats[n];
  if(s){
@@ -483,22 +736,27 @@ async function onSeat(b,n){
  const nid=p.nid,k=1+p.comp,grp=findWin(b,n,k,p.dept);
  if(!grp){say(k>1?'مفيش '+k+' كراسي فاضيين مترتبين حوالين الكرسي ده (نفس الجهة وبجنب بعض أو ورا بعض، أو في الدكة الورانية)، جرب مكان تاني':'الكرسي ده مش متاح',true);return;}
  const ownerName=(lookup($('nm').value)||{name:p.name}).name;
- S.busy=true;say('جاري الحجز...');
+ clearPreview();sfx('select');const shirt=okShirt(S.shirt);setBusy(true);say('جاري الحجز...');
  try{
-  await retry(()=>runTransaction(db,async tx=>{
+  await slowHint(retry(()=>runTransaction(db,async tx=>{
    const bref=doc(db,'buses','b'+b),pref=doc(db,'people',nid);
    const bs=await tx.get(bref),ps=await tx.get(pref);
    if(ps.exists())throw new Error('name');
    const seats=(bs.exists()&&bs.data().seats)||{},add={};
-   for(const q of grp){if(seats[q])throw new Error('taken');add[q]={owner:S.uid,pn:nid,name:q===n?p.name:p.name+' (مرافق)',dept:p.dept,ts:Date.now()};}
+   for(const q of grp){if(seats[q])throw new Error('taken');add[q]={owner:S.uid,pn:nid,name:q===n?p.name:p.name+' (مرافق)',dept:p.dept,ts:Date.now()};if(shirt)add[q].shirt=shirt;}
    tx.set(bref,{seats:add},{merge:true});
-   tx.set(pref,{name:p.name,dept:p.dept,owner:S.uid,ownerName:ownerName,kind:p.kind==='me'?'me':'friend',bus:b,seats:fmtSeats(grp),k:k,ts:Date.now()});
-  }));
-  delete S.pc[nid];say('');showOk(p,b,grp,k);await loadMine();
+   tx.set(pref,Object.assign({name:p.name,dept:p.dept,owner:S.uid,ownerName:ownerName,kind:p.kind==='me'?'me':'friend',bus:b,seats:fmtSeats(grp),k:k,ts:Date.now()},shirt?{shirt:shirt}:{}));
+  }),HIGH),HIGH);
+  delete S.pc[nid];say('');sfx('confirm');
+  // تحديث فوري محلي من غير انتظار قراءة جديدة، وبعدين مزامنة في الخلفية
+  S.mine=S.mine.filter(x=>x.id!==nid).concat([{id:nid,name:p.name,dept:p.dept,owner:S.uid,ownerName:ownerName,kind:p.kind==='me'?'me':'friend',bus:b,seats:fmtSeats(grp),k:k,ts:Date.now(),shirt:shirt}]);
+  showOk(p,b,grp,k);render();loadMine();
  }catch(e){
   const m=e&&e.message;
-  say(m==='name'?'الاسم ده اتحجز قبلك':m==='taken'?'الكرسي اتحجز قبلك بثانية، جرب كرسي تاني':'الزحمة كبيرة دلوقتي، حاول تاني',true);
- }finally{S.busy=false;}
+  if(m==='name'||m==='taken')delete S.pc[nid];sfx('deny');
+  say(m==='name'?'الاسم ده اتحجز قبلك':m==='taken'?'الكرسي اتحجز قبلك بثانية، جرب كرسي تاني':(typeof navigator!=='undefined'&&navigator.onLine===false)?'مفيش اتصال بالإنترنت، اتأكد من النت وحاول تاني':'الزحمة كبيرة دلوقتي، حاول تاني',true);
+  if(m==='name')loadMine();
+ }finally{setBusy(false);}
 }
 function doCancel(nid){
  return retry(()=>runTransaction(db,async tx=>{
@@ -506,15 +764,15 @@ function doCancel(nid){
   if(!ps.exists())return;
   const v=ps.data();if(v.owner!==S.uid&&!S.admin)throw new Error('denied');
   const bref=doc(db,'buses','b'+v.bus),bs=await tx.get(bref),q=seatList(v);
- if(bs.exists()){const u={};for(const i of q)u['seats.'+i]=deleteField();tx.update(bref,u);}
+  if(bs.exists()){const u={};for(const i of q)u['seats.'+i]=deleteField();tx.update(bref,u);}
   tx.delete(pref);
- })).then(()=>{delete S.pc[nid];});
+ }),HIGH_C).then(()=>{delete S.pc[nid];});
 }
 async function cancelP(nid){
- if(S.busy)return;S.busy=true;
- try{await doCancel(nid);say('تم الإلغاء');await loadMine();}
+ if(S.busy)return;setBusy(true);
+ try{await slowHint(doCancel(nid),HIGH_C);say('تم الإلغاء');sfx('cancel');S.mine=S.mine.filter(x=>x.id!==nid);render();loadMine();}
  catch(e){say('مقدرتش ألغي، حاول تاني',true);}
- finally{S.busy=false;}
+ finally{setBusy(false);}
 }
 function showOk(p,b,grp,k){
  const el=$('ok');
@@ -545,8 +803,13 @@ function renderAdmin(){
   h+='</details>';
  }
  h+='<details><summary>لسه ما حجزوش · '+left.length+'</summary>'+left.map(r=>'<div class="bk"><span>'+esc(r.dup?r.label:r.name+' · '+r.dept)+'</span><span>'+(r.comp?r.comp+' مرافق':'')+'</span></div>').join('')+'</details>';
- el.innerHTML=h;el.hidden=false;
- el.querySelectorAll('button[data-c]').forEach(b=>{b.onclick=()=>{if(confirm('إلغاء الحجز ده؟'))cancelP(b.dataset.c);};});
+if(el._h!==h){
+  const op=[...el.querySelectorAll('details')].map(d=>d.open);
+  el.innerHTML=h;el._h=h;
+  el.querySelectorAll('details').forEach((d,i)=>{if(op[i])d.open=true;});
+  el.querySelectorAll('button[data-c]').forEach(b=>{b.onclick=()=>{if(confirm('إلغاء الحجز ده؟'))cancelP(b.dataset.c);};});
+ }
+ el.hidden=false;
 }
 
 // ---------- تحديث القايمة من شيت Excel (أدمن) ----------
@@ -637,7 +900,7 @@ async function reconcileOne(v){
   const g=findWin(v.bus,L[0],nk,cur.dept,seats,L);
   if(!g)return {act:'cancel',why:'المرافقين زادوا ومفيش كراسي فاضية مترتبة جنب كراسيه، لازم يحجز تاني'};
   const add={};
-  g.filter(q=>!L.includes(q)).forEach(q=>{add[q]={owner:cur.owner,pn:v.id,name:cur.name+' (مرافق)',dept:cur.dept,ts:Date.now()};});
+  g.filter(q=>!L.includes(q)).forEach(q=>{add[q]={owner:cur.owner,pn:v.id,name:cur.name+' (مرافق)',dept:cur.dept,ts:Date.now()};if(cur.shirt)add[q].shirt=cur.shirt;});
   tx.set(bref,{seats:add},{merge:true});tx.update(pref,{k:nk,seats:fmtSeats(g)});
   return {act:'grow',why:'المرافقين '+(old-1)+' ← '+(nk-1)};
  }));
@@ -689,19 +952,26 @@ function afterAuth(u){
  if(!S.started){
   S.started=true;
   $('status').hidden=true;$('form').hidden=false;
-  onSnapshot(doc(db,'config','main'),sn=>{if(sn.exists()){const v=sn.data();buildConfig(v.N,v.C,v.P);}else buildConfig(6,49,70);fillCfg();render();});
-  onSnapshot(doc(db,'config','buses'),sn=>{const v=sn.exists()?sn.data():{};BUSCFG={names:v.names||{},vis:v.vis||{},extra:v.extra||0};fillCfg();render();},()=>{});
+  onSnapshot(doc(db,'config','main'),sn=>{
+   const v=sn.exists()?sn.data():{N:6,C:49,P:70},sg=[v.N,v.C,v.P].join('|');
+   if(sg===S.cfgsig)return;S.cfgsig=sg;
+   if(sn.exists())buildConfig(v.N,v.C,v.P);else buildConfig(6,49,70);fillCfg();render();});
+  onSnapshot(doc(db,'config','buses'),sn=>{
+   const v=sn.exists()?sn.data():{},sg=JSON.stringify([v.names||{},v.vis||{},v.extra||0]);
+   if(sg===S.busig)return;S.busig=sg;
+   BUSCFG={names:v.names||{},vis:v.vis||{},extra:v.extra||0};fillCfg();render();},()=>{});
   onSnapshot(doc(db,'config','roster'),sn=>{
    if(!sn.exists())return;
    const l=((sn.data().list)||[]).map(x=>[String(x.n||''),x.d,x.c|0]).filter(x=>x[0]&&DEPTS.includes(x[1]));
-   if(l.length){setRoster(l);S.pc={};rebuild();}
+   if(!l.length||rsigOf(l)===S.rsig)return; // نفس القايمة: مفيش إعادة بناء
+   setRoster(l);S.pc={};rebuild();
   },()=>{});
  }
- if(S.admin&&!S.adminSub){S.adminSub=true;onSnapshot(collection(db,'people'),sn=>{const o={};sn.docs.forEach(d=>{o[d.id]=d.data();});S.all=o;renderAdmin();});}
+ if(S.admin&&!S.adminSub){S.adminSub=true;onSnapshot(collection(db,'people'),sn=>{const o={};sn.docs.forEach(d=>{o[d.id]=d.data();});S.all=o;queueAdmin();});}
  loadMine();
 }
 buildConfig(6,49,70);fillCfg();
-attach($('nm'),$('sgm'),$('inm'),()=>{drawWho();render();});$('who').onchange=render;
+attach($('nm'),$('sgm'),$('inm'),()=>{renderSoon();});$('who').onchange=render;
 $('addf').onclick=()=>{if(S.friends.length<3){S.friends.push({name:'',dept:''});drawFriends();render();}};
 $('cA').onclick=async()=>{
  if(S.mine.length+Object.keys(S.all).length&&!confirm('فيه حجوزات موجودة، تغيير التوزيع ممكن يبوظها. متأكد؟'))return;
@@ -717,6 +987,8 @@ $('bsave').onclick=async()=>{
 };
 $('ab').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('ae').value.trim(),$('ap').value);}catch(e){say('الإيميل أو الباسورد غلط',true);}};
 window.addEventListener('hashchange',render);
+window.addEventListener('offline',()=>netHint('مفيش اتصال بالإنترنت دلوقتي، الصفحة هتكمل لما النت يرجع'));
+window.addEventListener('online',()=>netHint(''));
 
 render();
 onAuthStateChanged(auth,async u=>{
