@@ -320,11 +320,14 @@ const ADMIN_EMAIL="ziad@gmail.com"; // نفس الإيميل اللي هتعمل
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true,ignoreUndefinedProperties:true});
 const DEPTS=['إنجليزي','ألماني','إسباني','صيني','فرنساوي'];
 // قايمة المسجلين من ملف الاستمارة: [الاسم، القسم، عدد المرافقين]
-let ROSTER=[["Anfal Fayed","إسباني",0],["Aya Hendawy Youssef","إسباني",0],["Daren Yasser","إسباني",1],["habiba ayman","إسباني",0],["jana alwakeel","إسباني",0],["Jana hisham","إسباني",0],["mahmoud elmahs","إسباني",0],["Mariam shrief","إسباني",0],["Menna Ayman","إسباني",0],["Rawan Emad","إسباني",0],["Salma sherif","إسباني",1],["Sama Ahmed","إسباني",0],["Shahd wael","إسباني",0],["Sohaila Saher Abdelmonem","إسباني",0],["Sohila saeed","إسباني",0],["Zeinab emam","إسباني",0],["ابتهال شكري محمد الشحات","إسباني",0],["ايه شعبان","إسباني",0],["بسملة علاء صادق","إسباني",0],["بسنت عبدالجواد","إسباني",0],["حنين عمرو محمد","إسباني",0],["خلود عفت محمود","إسباني",0],["رانيا ابو الدهب","إسباني",2],["روان عبد العظيم النجار","إسباني",0],["ريمون مصباح","إسباني",0],["زياد فارس سليمان","إسباني",0],["ساره إبراهيم عبد المنعم","إسباني",0],["سما إسماعيل","إسباني",0],["سما خالد علي يونس","إسباني",3],["سمية عصام","إسباني",0],["شهد محمد عبد المجيد","إسباني",0],["شهد محمود احمد","إسباني",0],["عادل. صبحي محمد","إسباني",0],["عبدالرحمن سعيد","إسباني",0],["كابر طارق سعد","إسباني",0],["محمود محروس منصور","إسباني",0],["مرام عادل","إسباني",0],["ملك حمدي","إسباني",0],["منة الله محمد عبد الفتاح","إسباني",0],["منه امجد حسين","إسباني",0],["منه حاتم ثابت محمد","إسباني",0],["نزار محمد","إسباني",0],["نور ياسر طه","إسباني",0],["يوسف محمد عبدالله السيد","إسباني",0],["Amira Khaled Mohamed","ألماني",0],["Aya Mohamed Ebrahim","ألماني",0],["Bassant mahmoud Ebaid","ألماني",1],["Eman Ashraf Ahmed","ألماني",0],["Ereny Ashraf Fawzy","ألماني",0],["Habiba Ahmed","ألماني",1],["Habiba Walid Hanafi","ألماني",0],["habiba yasser elnaggar","ألماني",0],["habiba yasser sayed","ألماني",0],["Huda Mostafa mosad","ألماني",0],["jana AMonem","ألماني",0],["Jana Eid Sayed Salama","ألماني",0],["Jessica Hishmat Ageeb","ألماني",0],["Mai hussein abo Shama","ألماني",0],["Malak mahmoud ahmed","ألماني",0],["Mariam Ahmed","ألماني",0],["Mariam ashraf ahmed","ألماني",0],["Mariam Elshennawii","ألماني",1],["Mariam Ihab William","ألماني",0],["Mariam Khaled Ahmed","ألماني",3],["Marwa Elhenawy","ألماني",0],["Menna Gamal","ألماني",0],["nouran ashraf","ألماني",0],["Nourhan Hani","ألماني",0],["Rahma Ahmed Mohamed","ألماني",0],["Roqaya Atef","ألماني",0],["Sama Mustafa Mohammed","ألماني",0],["Shahd Hamdy","ألماني",0],["Shahd Mohamed shehata","ألماني",0],["Sondos Ibrahim marzouq","ألماني",0],["Voula Malak","ألماني",0],["Youssef Ibrahim","ألماني",0],["أحمد عبدالناصر فرحات","ألماني",0],["اسراء خالد","ألماني",0],["آلاء عادل احمد","ألماني",1],["آلاء عادل احمد","ألماني",0],["بسنت جمال محمد محمود","ألماني",0],["جورج صلاح يوسف","ألماني",0],["حبيبه احمد عبدالمحسن","ألماني",0],["داليا ناصر عطيه سيد","ألماني",0],["ساره فايز طوخي","ألماني",0],["ساره محمد مصطفي","ألماني",0],["سندس عماد ابراهيم","ألماني",0],["سهيلة سامي محمود علي","ألماني",0],["سيف محمد فتحي","ألماني",0],["شهد محمد فتحي","ألماني",0],["شهد محمد محمد كامل","ألماني",0],["شهد مصطفى صلاح الدين","ألماني",0],["عبدالله عمرو مصطفى فريد","ألماني",0],["علياء وائل أحمد","ألماني",1],["عمر شريف محمد صابر","ألماني",0],["فاطمه احمد محمد فهمى","ألماني",0],["فرح رضا محمد احمد","ألماني",0],["فرح عزالدين زكي","ألماني",0],["كيرلس انيس شنودة","ألماني",0],["محمود خالد محمود مسعود","ألماني",0],["ملك علاء شحته","ألماني",0],["ملك علي الجناني","ألماني",0],["منة الله خالد محمد السيد","ألماني",0],["منة الله محمد علاء الدين علي","ألماني",0],["منةالله احمد مصطفي","ألماني",1],["منه محمد احمد","ألماني",0],["ندى محمود محمد","ألماني",2],["نصر عبد العظيم","ألماني",0],["هبة أحمد عبدالمحسن","ألماني",0],["ياسمين احمد فاروق","ألماني",1],["ياسمين حسام انور","ألماني",0],["ياسمين حسين عبد العزيز","ألماني",0],["يوسف أحمد عزالدين جلعان","ألماني",0],["يوسف حسين عبدالله","ألماني",0],["Aya Fathy","إنجليزي",0],["Basmalla Samy mostafa","إنجليزي",1],["Dalia elsayed","إنجليزي",0],["Enjy Hanna Fathy","إنجليزي",0],["Esraa Mohamed Ahmed Ewis","إنجليزي",0],["Farah Sayed","إنجليزي",0],["ganna kelany","إنجليزي",0],["Hana wael","إنجليزي",1],["Haneen Ahmed","إنجليزي",2],["Malak Elshorbagy","إنجليزي",0],["Manar Ramadan","إنجليزي",0],["Maryam Mofreh","إنجليزي",0],["Maryam Mohamed sayed","إنجليزي",0],["Nour mohamed","إنجليزي",0],["Rawan Ahmed ali","إنجليزي",0],["Rawan Walid","إنجليزي",0],["Salma Mohamed Elsayed","إنجليزي",0],["Sara Essam Mohammed","إنجليزي",0],["Shahd Saad Fathy","إنجليزي",0],["Shaza Ibrahim","إنجليزي",0],["Tasneem Mahmoud Saad","إنجليزي",0],["Toka Mohamed ragab","إنجليزي",0],["Youstina romany youssef","إنجليزي",0],["أحمد شوقي محمد راغب","إنجليزي",0],["أحمد عبدالنبي أحمد ناصف","إنجليزي",0],["الاء محمد انيس عبدالقادر","إنجليزي",0],["بركسام وجيه جاد","إنجليزي",1],["بسملة محمود صوفي","إنجليزي",2],["بسنت حمدي عثمان","إنجليزي",0],["تقى محمد رجب","إنجليزي",1],["حبيبه محمد محمد حماد","إنجليزي",0],["دعاء عيد محمد عبد القادر","إنجليزي",0],["رؤى احمد حامد","إنجليزي",0],["ريم ابراهيم عبدالمنعم","إنجليزي",2],["زينه تامر علي بيومي الكومي","إنجليزي",0],["سارة أحمد محمود","إنجليزي",0],["ساره ايمن عبدالحميد","إنجليزي",1],["ساره عادل عبد العاطي","إنجليزي",0],["ساره محمد رمزي راتب","إنجليزي",0],["سلمى أحمد رمزي","إنجليزي",0],["شهد احمد السعيد","إنجليزي",0],["شهد شعبان عبد العزيز","إنجليزي",1],["شهد محمد علاء الدين علي","إنجليزي",0],["شهد محمود علي","إنجليزي",0],["علي عبد المجيد عبد اللطيف","إنجليزي",0],["غرام طارق عصمت","إنجليزي",0],["فاطمه محمود عبد الباسط الماظ","إنجليزي",0],["فرح وليد محمود احمد","إنجليزي",1],["مايا شريف","إنجليزي",0],["محمد أحمد محمد الجمال","إنجليزي",0],["محمد فاروق محمد / يونس محمد يونس","إنجليزي",0],["محمود طارق محمود","إنجليزي",0],["مروان وليد محمد فكري","إنجليزي",0],["مريم احمد حلمي","إنجليزي",0],["مريم احمد عدلي","إنجليزي",0],["مريم رمضان مصطفى","إنجليزي",0],["مريم ياسر حسن","إنجليزي",0],["منه محمد سيداحمد خطاب","إنجليزي",0],["نادين احمد محمود","إنجليزي",0],["ندي هاني محمد","إنجليزي",0],["نور حسام الدين","إنجليزي",0],["نوران ابراهيم عطيه سيد","إنجليزي",1],["هـايدى محمد","إنجليزي",0],["هديه سامي عبدالعظيم","إنجليزي",1],["هولي هاني نبيل","إنجليزي",0],["ياسمين محمود","إنجليزي",0],["ياسمينا خالد جنيدي","إنجليزي",0],["يوسف وائل محمد","إنجليزي",0],["يونس محمد يونس","إنجليزي",0],["Aya Hamdy lotfy","صيني",0],["Fatma Yousry","صيني",0],["Haneen Elsayed","صيني",1],["Mohamed Saber沈阳","صيني",0],["Sahar Mohamed","صيني",0],["Shahd ahmed abdelaziz","صيني",0],["جودي محمد إبراهيم","صيني",0],["دنيا وائل ابراهيم محمد","صيني",0],["سارة توفيق السيد","صيني",0],["سارة عماد محمد إبراهيم","صيني",0],["سلمي محروس","صيني",0],["سمير محمد سمير","صيني",0],["شروق عبدالله عجمي","صيني",0],["شهد محمد زياد بهلول","صيني",0],["عاليه محمد","صيني",0],["فاطمه اسماعيل عبدالوهاب","صيني",2],["ماريز فوزي","صيني",0],["محمد حشمت محمد","صيني",0],["ملك مجدي","صيني",0],["منار عبد الغني محمد","صيني",0],["منة عادل عبد الجواد","صيني",0],["ندي محمود صالح","صيني",1],["نورهان عبدالله خطاب","صيني",0],["نورهان نبيل يوسف","صيني",0],["Arwa Ebrahim","فرنساوي",0],["Eslam magdy","فرنساوي",0],["Farah Mohamed Saleh","فرنساوي",0],["Hadeer","فرنساوي",0],["Hager Mohammed Elgushy","فرنساوي",0],["Madonna romany","فرنساوي",0],["Menna Taher","فرنساوي",0],["Rana mahmoud","فرنساوي",0],["Rawda Tarek","فرنساوي",0],["Sama haitham","فرنساوي",1],["vera sameh","فرنساوي",1],["روان ايمن ابراهيم","فرنساوي",0],["ساره سعد","فرنساوي",1],["سما محمد محمد","فرنساوي",0],["كريم محمد يونس","فرنساوي",1],["مريم سامح","فرنساوي",0],["ملك عمرو حامد رجب","فرنساوي",0],["ميمنه السيد محمد محب","فرنساوي",0],["مينا وجدى فؤاد","فرنساوي",0]];
+let ROSTER=[["Anfal Fayed","إسباني",0],["Aya Hendawy Youssef","إسباني",1],["Daren Yasser","إسباني",1],["Eyad Amr","إسباني",0],["Hana mostafa","إسباني",0],["Hassan Hany Shalaby","إسباني",0],["Jana hisham","إسباني",0],["mahmoud elmahs","إسباني",0],["Mariam shrief","إسباني",0],["Menna Ayman","إسباني",0],["Rawan Emad","إسباني",0],["Salma sherif","إسباني",1],["Shahd wael","إسباني",0],["Sohaila Saher Abdelmonem","إسباني",0],["ابتهال شكري محمد الشحات","إسباني",0],["اسماء فتوح","إسباني",0],["باسل اسباني","إسباني",0],["بسملة علاء صادق","إسباني",0],["بسنت عبدالجواد","إسباني",0],["حنين عمرو محمد","إسباني",0],["خلود عفت محمود","إسباني",0],["رانيا ابو الدهب","إسباني",2],["رضوي احمد محمد حسن","إسباني",0],["روان عبد العظيم النجار","إسباني",0],["ريمون مصباح","إسباني",0],["زياد فارس سليمان","إسباني",0],["ساره إبراهيم عبد المنعم","إسباني",0],["سما إسماعيل","إسباني",0],["سما خالد علي يونس","إسباني",3],["شهد محمد عبد المجيد","إسباني",0],["شهد محمود احمد","إسباني",0],["عادل. صبحي محمد","إسباني",0],["عبدالرحمن سعيد","إسباني",0],["كابر طارق سعد","إسباني",0],["محمود محروس منصور","إسباني",0],["مرام عادل","إسباني",0],["منة الله محمد عبد الفتاح","إسباني",0],["منه حاتم ثابت محمد","إسباني",0],["نزار محمد","إسباني",0],["نور السيد","إسباني",1],["نور ياسر طه","إسباني",0],["يوسف محمد عبدالله السيد","إسباني",0],["يوسف ياسر","إسباني",0],["محمد داوود","إسباني",0],["مروان ايمن","إسباني",1],["Amira Khaled Mohamed","ألماني",0],["Aya Mohamed Ebrahim","ألماني",0],["Bassant mahmoud Ebaid","ألماني",1],["Eman Ashraf Ahmed","ألماني",0],["Ereny Ashraf Fawzy","ألماني",0],["Habiba Ahmed","ألماني",1],["Habiba Walid Hanafi","ألماني",0],["habiba yasser sayed","ألماني",0],["Huda Mostafa mosad","ألماني",0],["jana AMonem","ألماني",0],["Jana Eid Sayed Salama","ألماني",0],["Jessica Hishmat Ageeb","ألماني",0],["Mai hussein abo Shama","ألماني",0],["Malak mahmoud ahmed","ألماني",0],["Mariam Ahmed","ألماني",0],["Mariam ashraf ahmed","ألماني",0],["Mariam Elshennawii","ألماني",1],["Mariam Ihab William","ألماني",0],["Mariam Khaled Ahmed","ألماني",3],["Marwa Elhenawy","ألماني",0],["Menna Gamal","ألماني",0],["nouran ashraf","ألماني",0],["Nourhan Hani","ألماني",0],["Rahma Ahmed Mohamed","ألماني",0],["Roqaya Atef","ألماني",0],["Sama Mustafa Mohammed","ألماني",0],["Shahd Hamdy","ألماني",0],["Shahd Mohamed shehata","ألماني",0],["Sondos Ibrahim marzouq","ألماني",0],["Voula Malak","ألماني",0],["Youssef Ibrahim","ألماني",0],["أحمد عبدالناصر فرحات","ألماني",0],["اسراء خالد","ألماني",0],["آلاء عادل احمد","ألماني",1],["بسنت جمال محمد محمود","ألماني",0],["جورج صلاح يوسف","ألماني",0],["حمدي محمد","ألماني",0],["داليا ناصر عطيه سيد","ألماني",0],["ساره فايز طوخي","ألماني",0],["ساره محمد مصطفي","ألماني",0],["سندس عماد ابراهيم","ألماني",0],["سهيلة سامي محمود علي","ألماني",0],["سيف محمد فتحي","ألماني",2],["شهد محمد فتحي","ألماني",0],["شهد محمد محمد كامل","ألماني",0],["شهد مصطفى صلاح الدين","ألماني",0],["عبدالله عمرو مصطفى فريد","ألماني",0],["علياء وائل أحمد","ألماني",1],["عمر شريف محمد صابر","ألماني",0],["فاطمه احمد محمد فهمى","ألماني",0],["فرح رضا محمد احمد","ألماني",0],["فرح عزالدين زكي","ألماني",0],["كيرلس انيس شنودة","ألماني",0],["ماريا ميلاد","ألماني",1],["محمود خالد محمود مسعود","ألماني",0],["ملك علاء شحته","ألماني",0],["ملك علي الجناني","ألماني",0],["منة الله خالد محمد السيد","ألماني",0],["منة الله محمد علاء الدين علي","ألماني",0],["منةالله احمد مصطفي","ألماني",1],["منه محمد احمد","ألماني",0],["ندى محمود محمد","ألماني",2],["نصر عبد العظيم","ألماني",0],["نوران محمد عبد الجليل","ألماني",0],["هبة أحمد عبدالمحسن","ألماني",0],["ياسمين احمد فاروق","ألماني",1],["ياسمين حسام انور","ألماني",0],["ياسمين حسين عبد العزيز","ألماني",0],["يوسف أحمد عزالدين جلعان","ألماني",0],["يوسف حسين عبدالله","ألماني",0],["عبدالرحمن طه","ألماني",0],["زياد محمود","ألماني",1],["Basmala yassin Mohamed","إنجليزي",0],["Basmalla Samy mostafa","إنجليزي",1],["Dalia elsayed","إنجليزي",0],["Enjy Hanna Fathy","إنجليزي",0],["Esraa Mohamed Ahmed Ewis","إنجليزي",0],["Farah Sayed","إنجليزي",0],["ganna kelany","إنجليزي",0],["Hana wael","إنجليزي",1],["Haneen Ahmed","إنجليزي",5],["Malak Elshorbagy","إنجليزي",0],["Manar Ramadan","إنجليزي",0],["Maryam Mofreh","إنجليزي",0],["Maryam Mohamed sayed","إنجليزي",0],["Nour mohamed","إنجليزي",0],["Rawan Ahmed ali","إنجليزي",0],["Rawan Walid","إنجليزي",0],["Salma Mohamed Elsayed","إنجليزي",0],["Sara Essam Mohammed","إنجليزي",0],["Shahd Alsayed","إنجليزي",1],["Shahd Saad Fathy","إنجليزي",0],["Shaza Ibrahim","إنجليزي",0],["Tasneem Mahmoud Saad","إنجليزي",0],["Youstina romany youssef","إنجليزي",0],["أحمد شوقي محمد راغب","إنجليزي",0],["أحمد عبدالنبي أحمد ناصف","إنجليزي",0],["الاء محمد انيس عبدالقادر","إنجليزي",0],["بركسام وجيه جاد","إنجليزي",1],["بسملة محمود صوفي","إنجليزي",2],["حبيبه محمد محمد حماد","إنجليزي",0],["دعاء عيد محمد عبد القادر","إنجليزي",0],["رؤى احمد حامد","إنجليزي",0],["ريم ابراهيم عبدالمنعم","إنجليزي",1],["زينه تامر علي بيومي الكومي","إنجليزي",0],["سارة أحمد فؤاد أحمد","إنجليزي",0],["ساره ايمن عبدالحميد","إنجليزي",1],["ساره عادل عبد العاطي","إنجليزي",0],["ساره محمد رمزي راتب","إنجليزي",0],["سلمى أحمد رمزي","إنجليزي",0],["شهد رمضان طاهر","إنجليزي",0],["شهد شعبان عبد العزيز","إنجليزي",1],["شهد محمد علاء الدين علي","إنجليزي",0],["شهد محمود علي","إنجليزي",0],["علي عبد المجيد عبد اللطيف","إنجليزي",0],["غرام طارق عصمت","إنجليزي",0],["فاطمه محمود عبد الباسط الماظ","إنجليزي",0],["فرح وليد محمود احمد","إنجليزي",1],["مايا شريف","إنجليزي",0],["محمد أحمد محمد الجمال","إنجليزي",0],["محمد فاروق محمد / يونس محمد يونس","إنجليزي",0],["محمود طارق محمود","إنجليزي",0],["مروان وليد محمد فكري","إنجليزي",0],["مريم احمد حلمي","إنجليزي",0],["مريم احمد عدلي","إنجليزي",0],["مريم رمضان مصطفى","إنجليزي",1],["مريم ياسر حسن","إنجليزي",0],["منه محمد سيداحمد خطاب","إنجليزي",0],["نادين احمد محمود","إنجليزي",0],["ندي هاني محمد","إنجليزي",0],["نور حسام الدين","إنجليزي",0],["هديه سامي عبدالعظيم","إنجليزي",1],["هـايدى محمد","إنجليزي",0],["هولي هاني نبيل","إنجليزي",0],["ياسمين محمود","إنجليزي",0],["ياسمينا خالد جنيدي","إنجليزي",4],["يوسف وائل محمد","إنجليزي",0],["يونس محمد يونس","إنجليزي",0],["رانا هيثم","إنجليزي",1],["Aya Hamdy lotfy","صيني",0],["Fatma Yousry","صيني",0],["Haneen Elsayed","صيني",1],["Mohamed Saber沈阳","صيني",0],["Sahar Mohamed","صيني",0],["Shahd ahmed abdelaziz","صيني",0],["جودي محمد إبراهيم","صيني",0],["دنيا وائل ابراهيم محمد","صيني",0],["سارة توفيق السيد","صيني",0],["سارة عماد محمد إبراهيم","صيني",0],["سلمي محروس","صيني",0],["سمير محمد سمير","صيني",0],["شروق عبدالله","صيني",1],["شهد محمد زياد بهلول","صيني",0],["عاليه محمد","صيني",0],["فاطمه اسماعيل عبدالوهاب","صيني",2],["ماريز فوزي","صيني",0],["محمد حشمت محمد","صيني",1],["ملك مجدي","صيني",0],["منار عبد الغني محمد","صيني",0],["منة عادل عبد الجواد","صيني",0],["ندي محمود صالح","صيني",1],["نورهان عبدالله خطاب","صيني",0],["نورهان نبيل يوسف","صيني",0],["اميره طه","صيني",1],["Arwa Ebrahim","فرنساوي",0],["Eslam magdy","فرنساوي",0],["Farah Mohamed Saleh","فرنساوي",0],["Hadeer","فرنساوي",0],["Hager Mohammed Elgushy","فرنساوي",0],["Madonna romany","فرنساوي",0],["Menna Taher","فرنساوي",0],["Rana mahmoud","فرنساوي",0],["Rawda Tarek","فرنساوي",0],["Sama haitham","فرنساوي",1],["vera sameh","فرنساوي",1],["رنا عماد","فرنساوي",0],["روان ايمن ابراهيم","فرنساوي",0],["ساره سعد","فرنساوي",1],["سما محمد محمد","فرنساوي",0],["كريم محمد يونس","فرنساوي",1],["مريم سامح","فرنساوي",0],["ملك عمرو حامد رجب","فرنساوي",0],["ميمنه السيد محمد محب","فرنساوي",0],["مينا وجدى فؤاد","فرنساوي",0]];
 let BUSCFG={names:{},vis:{},extra:0,maj:{},q:{}};
 const extraN=()=>Math.max(0,Math.min(9,parseInt(BUSCFG.extra)||0));
 const isExtra=b=>b>CFG.N&&b<=CFG.N+extraN();
 const bname=b=>(BUSCFG.names&&BUSCFG.names[b]&&String(BUSCFG.names[b]).trim())||'اتوبيس '+b;
+// كراسي مقفولة في كل اتوبيس من الاتوبيسات الأساسية (لناس الشركة). غيّر الأرقام هنا لو عاوز كرسي تاني
+const CLOSED_SEATS=[],CO_ZONE='الشركة';
+const effC=()=>Math.max(1,CFG.C-CLOSED_SEATS.length); // الكراسي الفعلية في الاتوبيس بعد المقفول (كل النسب بتتحسب عليها)
 let CAP=49,MIXED=6,QUOTA={},MAJ={},OPEN={},CFG={N:6,C:49,P:70};
 const S={uid:null,admin:false,bus:null,seats:{},watch:null,unsub:null,mine:[],friends:[],busy:false,pc:{},all:{},occ:{},started:false,pvSeat:null,pvKey:'',pvSet:[],hinting:false,hintPrev:null,tipSeat:null,tipAuto:false,tipT:0,ptype:'mouse',shirt:'',dropOK:false,synced:{},cache:{},sig:null,els:{},pdept:'',raf:0,rsig:'',cfgsig:'',busig:''};
 const $=id=>document.getElementById(id);
@@ -365,7 +368,8 @@ setRoster(ROSTER);
 function rebuild(){buildConfig(CFG.N,CFG.C,CFG.P);fillCfg();render();}
 function lookup(t){const k=NORM(t||'');return k?RI.find(r=>r.lk===k)||null:null;}
 function say(t,bad){S.hinting=false;const m=$('msg');m.textContent=t||'';m.style.color=bad?'#d64545':'var(--mine)';}
-function zone(b,n,d){if(isExtra(b))return d!==undefined?d:'مفتوح';let a=0;for(const [d,q] of Object.entries(QUOTA[b]||{})){a+=q;if(n<=a)return d;}return 'احتياطي';}
+function zone(b,n,d){if(isExtra(b))return d!==undefined?d:'مفتوح';if(CLOSED_SEATS.includes(n))return CO_ZONE;n-=CLOSED_SEATS.filter(x=>x<n).length;let a=0;for(const [dd,q] of Object.entries(QUOTA[b]||{})){a+=q;if(n<=a)return dd;}return d!==undefined?d:'احتياطي';} // الكراسي اللي برا نسب الأقسام (الاحتياطي) مفتوحة لأي قسم بيشوف الاتوبيس بدل ما تتقفل
+function resN(b){return Math.max(0,CAP-CLOSED_SEATS.length-Object.values(QUOTA[b]||{}).reduce((x,y)=>x+y,0));}
 function rangeOf(v){const q=String(v.seats).split('-').map(Number);return q.length>1?[q[0],q[1]]:[q[0],q[0]];}
 
 // ---------- حساب التوزيع من أعداد القايمة ----------
@@ -381,7 +385,7 @@ function manSeats(q,C){
 }
 let MANB=new Set();
 function buildConfig(N,C,P){
- N=Math.max(2,Math.floor(N)||6);C=Math.max(4,Math.floor(C)||49);P=Math.min(95,Math.max(51,+P||70));CFG={N:N,C:C,P:P};
+ N=Math.max(2,Math.floor(N)||6);C=Math.max(4,Math.floor(C)||49);P=Math.min(95,Math.max(51,+P||70));CFG={N:N,C:C,P:P};const Cfull=C;C=C-CLOSED_SEATS.length;
  const D0=DEPTS.map(n=>({name:n,T:0}));
  RI.forEach(r=>{const d=D0.find(x=>x.name===r.dept);if(d)d.T+=1+r.comp;});
  const D=D0.filter(d=>d.T>0),M=Math.round(C*P/100),mx=N-1;
@@ -428,10 +432,12 @@ function buildConfig(N,C,P){
   while(R[i]>0){let best=-1,bf=0;
    slots.forEach((bi,pos)=>{if(md[pos]===i||!can(bi,D[i].name))return;const f=free(bi);if(f>bf){bf=f;best=bi;}});
    if(best<0&&mixedAuto&&can(mx,D[i].name)){bf=free(mx);if(bf>0)best=mx;}
+   if(best<0){bf=0;slots.forEach(bi=>{if(!can(bi,D[i].name))return;const f=free(bi);if(f>bf){bf=f;best=bi;}});} // آخر حل: أي كرسي فاضي حتى لو في اتوبيس أغلبية القسم نفسه (بدل ما الشخص يضيع)
+   if(best<0){bf=0;man.forEach(bi=>{if(!can(bi,D[i].name))return;const f=free(bi);if(f>bf){bf=f;best=bi;}});} // مقاعد فاضية في اتوبيسات يدوية (نسبها أقل من 100%): آخر حل بدل ما حد يضيع
    if(best<0)break;
    const x=Math.min(R[i],bf);Qa[best][D[i].name]=(Qa[best][D[i].name]||0)+x;R[i]-=x;}
  }
- QUOTA={};MAJ={};OPEN={};CAP=C;MIXED=N;MANB=new Set([...man].map(x=>x+1));CFG.lost=R.reduce((x,y)=>x+Math.max(0,y),0);
+ QUOTA={};MAJ={};OPEN={};CAP=Cfull;MIXED=N;MANB=new Set([...man].map(x=>x+1));CFG.lost=R.reduce((x,y)=>x+Math.max(0,y),0);
  Qa.forEach((q,b)=>{const e=Object.entries(q).filter(([,v])=>v>0).sort((x,y)=>y[1]-x[1]);QUOTA[b+1]=Object.fromEntries(e);if(e[0]&&e[0][1]/C>=0.5&&(b<mx||man.has(b)))MAJ[b+1]=e[0][0];});
  pin.forEach(pos=>{const bi=slots[pos],di=md[pos];if(di>=0&&QUOTA[bi+1]&&QUOTA[bi+1][D[di].name]>0)MAJ[bi+1]=D[di].name;});
  if(mixedAuto&&mdi>=0&&(Qa[mx][ovm]||0)>0)MAJ[N]=ovm;
@@ -458,17 +464,31 @@ function manPanel(b){
 }
 function bqUpdate(){
  const box=$('bcfg'),sm=$('bqsum');if(!box||!sm)return;
- const tot={};let any=false;
+ const tot={},draft={};let any=false,nm=0,used=0;
  box.querySelectorAll('[data-b]').forEach(w=>{
   const on=w.querySelector('.bq_on'),se=w.querySelector('.bq_s');if(!on||!se)return;
   if(!on.checked){se.textContent='';return;}
   const q={};w.querySelectorAll('.bq_').forEach(i=>{const v=+i.value;if(v>0)q[i.dataset.d]=v;});
-  const sum=Math.round(Object.values(q).reduce((a,x)=>a+x,0)*10)/10,ms=manSeats(q,CFG.C),seats=Object.values(ms).reduce((a,x)=>a+x,0);
-  Object.entries(ms).forEach(([d,v])=>{tot[d]=(tot[d]||0)+v;});any=true;
-  se.innerHTML=(sum>100?'<b style="color:#d64545">! المجموع '+sum+'% (أكتر من 100%، هيتظبط تلقائي)</b>':'المجموع '+sum+'% = '+seats+' من '+CFG.C+' كرسي')+(seats?' · '+Object.entries(ms).map(([d,v])=>esc(d)+' '+v).join('، '):'');
+  const sum=Math.round(Object.values(q).reduce((a,x)=>a+x,0)*10)/10,ms=manSeats(q,effC()),seats=Object.values(ms).reduce((a,x)=>a+x,0);
+  Object.entries(ms).forEach(([d,v])=>{tot[d]=(tot[d]||0)+v;});any=true;nm++;used+=seats;if(seats)draft[w.dataset.b]=q;
+  se.innerHTML=(sum>100?'<b style="color:#d64545">! المجموع '+sum+'% (أكتر من 100%، هيتظبط تلقائي)</b>':'المجموع '+sum+'% = '+seats+' من '+effC()+' كرسي')+(seats?' · '+Object.entries(ms).map(([d,v])=>esc(d)+' '+v).join('، '):'');
  });
  const T={};RI.forEach(r=>{T[r.dept]=(T[r.dept]||0)+1+r.comp;});
- sm.innerHTML=any?'<b>الاحتياج مقابل التوزيع اليدوي</b><br>'+DEPTS.filter(d=>T[d]).map(d=>{const rest=T[d]-(tot[d]||0);return esc(d)+': محتاج '+T[d]+' كرسي · موزع يدوي '+(tot[d]||0)+' · '+(rest>0?'الباقي '+rest+' هيتوزع تلقائي على باقي الاتوبيسات':rest<0?'<span style="color:#e59a3a">زيادة '+(-rest)+' كرسي عن الاحتياج</span>':'مكتمل ✓');}).join('<br>'):'';
+ const rows=DEPTS.filter(d=>T[d]),pc=(x,t)=>t?Math.round(x/t*1000)/10:0;let gT=0,gD=0;
+ const lines=rows.map(d=>{const t=T[d],dn=Math.min(tot[d]||0,t),over=(tot[d]||0)-t,rest=t-(tot[d]||0);gT+=t;gD+=dn;
+  const st=rest>0?'<b style="color:var(--acc)">فاضل '+rest+' نفر ('+pc(rest,t)+'%)</b>':rest<0?'<b style="color:#e59a3a">زيادة '+over+' كرسي عن الاحتياج</b>':'<b style="color:#2fc58f">مكتمل ✓</b>';
+  return '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>'+esc(d)+' <span style="color:var(--mut)">(الكل '+t+' · موزع '+(tot[d]||0)+' · '+pc(tot[d]||0,t)+'%)</span></span>'+st+'</div>';}).join('');
+ const gR=gT-gD;
+ sm.style.cssText='text-align:right;margin:0 0 8px;line-height:1.9;position:sticky;top:0;z-index:5;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px';
+ sm.innerHTML='<b>المتبقي للتوزيع</b>'+(any?'':' <span style="color:var(--mut)">(لسه مفيش توزيع يدوي)</span>')+lines+'<div style="border-top:1px solid var(--line);margin-top:4px;padding-top:4px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>الإجمالي: '+gT+' نفر · موزع '+gD+'</span><b style="color:'+(gR>0?'var(--acc)':'#2fc58f')+'">'+(gR>0?'فاضل '+gR+' نفر ('+pc(gR,gT)+'%)':'الكل اتوزع ✓')+'</b></div>'
+  +(()=>{const seats=CFG.N*effC(),sp=seats-gT;return '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:4px"><span>الكراسي: '+CFG.N+' اتوبيس × '+effC()+(CLOSED_SEATS.length?' (من '+CFG.C+' ناقص المقفول)':'')+' = '+seats+' · الناس '+gT+'</span>'+(sp>=0?'<b style="color:#2fc58f">زيادة '+sp+' كرسي ✓</b>':'<b style="color:#d64545">ناقص '+(-sp)+' كرسي!</b>')+'</div>';})()
+  +(()=>{const left=(CFG.N-nm)*effC(),wasted=nm*effC()-used;return '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:4px"><span>استهلكت <b>'+used+'</b> كرسي في '+nm+' اتوبيس يدوي'+(wasted>0?' · <span style="color:#e59a3a">'+wasted+' كرسي فاضي في اليدوي ومحدش هيدخله</span>':'')+'</span><b style="color:'+(left+Math.max(0,wasted)>=gR?'#2fc58f':'#d64545')+'">باقي '+left+' كرسي في الاتوبيسات التلقائية'+(wasted>0?' + '+wasted+' فاضي في اليدوي':'')+' لـ '+gR+' نفر'+(left>=gR?'':(left+Math.max(0,wasted)>=gR?' (الباقي هيتحط تلقائي في الكراسي الفاضية ✓)':' (مش كفاية!)'))+'</b></div>';})()
+  +(()=>{const nz=o=>JSON.stringify(Object.keys(o).sort().map(k=>[k,Object.keys(o[k]).sort().map(d=>[d,Math.round(+o[k][d]*10)/10])]));const sv={};Object.entries(BUSCFG.q||{}).forEach(([k,v])=>{if(Object.values(v).some(x=>+x>0))sv[k]=v;});return nz(draft)!==nz(sv)?'<div style="margin-top:6px;color:#e59a3a"><b>! التعديلات دي لسه مش محفوظة. دوس "حفظ الأسماء والظهور" عشان تتطبق (زرار "تطبيق" فوق مش بيحفظ النسب).</b></div>':'';})()
+}
+function pureBox(b){
+ if(b>CFG.N)return '';
+ const q=(BUSCFG.q&&BUSCFG.q[b])||{},k=Object.keys(q).filter(d=>+q[d]>0),on=k.length===1&&+q[k[0]]>=99.9;
+ return '<label style="margin-top:8px;display:flex;gap:8px;align-items:center;color:var(--tx);font-weight:600"><input type="checkbox" class="bp_" style="width:auto"'+(on?' checked':'')+'> اتوبيس نقي: القسم المختار فوق بس (100%) من غير أي قسم تاني</label>';
 }
 function drawBusCfg(){
  const box=$('bcfg');if(!box)return;box.innerHTML='';
@@ -477,7 +497,7 @@ function drawBusCfg(){
   const w=document.createElement('div');w.style.cssText='border-top:1px solid var(--line);padding:10px 0';w.dataset.b=b;
   const v=BUSCFG.vis&&BUSCFG.vis[b],auto=!v;
   w.innerHTML='<label>اسم اتوبيس '+b+'</label><input class="bn_" maxlength="30" placeholder="اتوبيس '+b+'" value="'+esc((BUSCFG.names&&BUSCFG.names[b])||'')+'">'
-   +majSel(b)+manPanel(b)+'<label style="margin-top:8px;display:flex;gap:8px;align-items:center"><input type="checkbox" class="ba_" style="width:auto"'+(auto?' checked':'')+'> '+(b>CFG.N?'مخفي عن المستخدمين (للأدمن بس)':'تلقائي (حسب التوزيع)')+'</label>'
+   +majSel(b)+pureBox(b)+manPanel(b)+'<label style="margin-top:8px;display:flex;gap:8px;align-items:center"><input type="checkbox" class="ba_" style="width:auto"'+(auto?' checked':'')+'> '+(b>CFG.N?'مخفي عن المستخدمين (للأدمن بس)':'تلقائي (حسب التوزيع)')+'</label>'
    +'<div class="bd_" style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin-top:4px">'+DEPTS.map(d=>'<label style="display:flex;gap:5px;align-items:center;margin:0;color:var(--tx)"><input type="checkbox" class="bdp_" style="width:auto" value="'+d+'"'+(v&&v.includes(d)?' checked':'')+(auto?' disabled':'')+'>'+d+'</label>').join('')+'</div>';
   const ba=w.querySelector('.ba_');ba.onchange=()=>w.querySelectorAll('.bdp_').forEach(c=>{c.disabled=ba.checked;});
   const qo=w.querySelector('.bq_on');
@@ -485,7 +505,12 @@ function drawBusCfg(){
    const qf=w.querySelector('.bq_f');
    qo.onchange=()=>{qf.style.display=qo.checked?'':'none';bqUpdate();};
    w.querySelectorAll('.bq_').forEach(i=>{i.oninput=bqUpdate;});
-   w.querySelector('.bq_fill').onclick=()=>{const qq=QUOTA[b]||{};w.querySelectorAll('.bq_').forEach(i=>{const v=qq[i.dataset.d]||0;i.value=v?Math.round(v/CFG.C*1000)/10:'';});bqUpdate();};
+   const bp=w.querySelector('.bp_'),bm=w.querySelector('.bm_');
+   const applyPure=()=>{const d=bm?bm.value:'';if(!d){alert('اختار القسم من \"أغلبية اتوبيس\" الأول');bp.checked=false;return;}
+    qo.checked=true;qf.style.display='';w.querySelectorAll('.bq_').forEach(i=>{i.value=i.dataset.d===d?100:'';});bqUpdate();};
+   if(bp){bp.onchange=()=>{if(bp.checked)applyPure();else{qo.checked=false;qf.style.display='none';w.querySelectorAll('.bq_').forEach(i=>{i.value='';});bqUpdate();}};
+    if(bm){bm.onchange=()=>{if(bp.checked)applyPure();};if(bp.checked&&!bm.value){const q=(BUSCFG.q&&BUSCFG.q[b])||{},k=Object.keys(q).filter(d=>+q[d]>0);if(k[0])bm.value=k[0];}}}
+   w.querySelector('.bq_fill').onclick=()=>{const qq=QUOTA[b]||{};w.querySelectorAll('.bq_').forEach(i=>{const v=qq[i.dataset.d]||0;i.value=v?Math.round(v/effC()*10000)/100:'';});bqUpdate();};
   }
   box.appendChild(w);
  }
@@ -552,7 +577,7 @@ function role(b,d){
  if(MANB.has(b))return MAJ[b]===d?'أغلبية':'نسبة يدوية';
  if(b===MIXED)return 'مشكل';
  const o=OPEN[d]||{};
- if(b===o.major)return QUOTA[b][d]/CAP>=0.55?'أغلبية':'الأعلى نسبة';
+ if(b===o.major)return QUOTA[b][d]/(CAP-CLOSED_SEATS.length)>=0.55?'أغلبية':'الأعلى نسبة';
  if(b===o.over)return 'أغلبية (بديل)';
  return 'أقلية';
 }
@@ -662,7 +687,7 @@ function paintSeats(){
  for(const k in S.els){
   const num=+k,btn=S.els[k],s=S.seats[num],mine=!!s&&s.owner===S.uid,z=zone(b,num,dept),zl=z!==dept,cr=!!s&&CREW.has(s.pn);
   let title='';
-  if(zl)title='مخصص لـ'+z;
+  if(z===CO_ZONE)title='مقفول - ناس الشركة';else if(zl)title='مخصص لـ'+z;
   else if(s&&mine)title=s.name||'';
   if(s&&!mine)title=s.name||'محجوز';
   const fk=(zl?1:0)+''+(s&&!zl&&mine?1:0)+(s&&!zl&&!mine?1:0)+(s?1:0)+(s&&!mine?1:0)+'|'+title+(cr?'|c':'');
@@ -672,7 +697,7 @@ function paintSeats(){
    btn.classList.toggle('z',zl);btn.classList.toggle('m',!!s&&!zl&&mine);btn.classList.toggle('t',!!s&&!zl&&!mine);
    btn.classList.toggle('hp',!!s);btn.classList.toggle('tk',!!s&&!mine);btn.classList.toggle('crew',cr);
    if(title)btn.title=title;else btn.removeAttribute('title');
-   btn.setAttribute('aria-label','كرسي '+num+(s?(mine?' - حجزك':' - محجوز'):(zl?' - مخصص لـ'+z:' - متاح'))+(cr?' - من شلتك':''));
+   btn.setAttribute('aria-label','كرسي '+num+(s?(mine?' - حجزك':' - محجوز'):(z===CO_ZONE?' - مقفول للشركة':zl?' - مخصص لـ'+z:' - متاح'))+(cr?' - من شلتك':''));
   }
   const ik=seatIk(s,mine,num);
   if(!btn._pv&&btn._ik!==ik){
@@ -680,7 +705,7 @@ function paintSeats(){
    if(was===''&&ik&&S.dropOK&&drops<8&&!RM.matches&&!S.lite){drops++;btn.classList.add('drop');} // نزول الشخصية على الكرسي الجديد
   }
  }
- const t='كراسي قسمك في الاتوبيس ده: '+cntDept(S.seats,dept)+(isExtra(b)?'':' من '+((QUOTA[b]||{})[dept]||0)),sm=$('sum');
+ const t='كراسي قسمك في الاتوبيس ده: '+cntDept(S.seats,dept)+(isExtra(b)?'':' من '+((QUOTA[b]||{})[dept]||0)+(resN(b)>0?' (+ '+resN(b)+' كرسي احتياطي مفتوح لأي قسم)':'')),sm=$('sum');
  if(sm.textContent!==t)sm.textContent=t;
  if(S.pvSeat!=null)previewSeat(S.pvSeat);
  if(S.tipSeat!=null)refreshTip();
@@ -977,6 +1002,7 @@ async function onSeat(b,n){
  }
  const p=persons().find(x=>x.id===$('who').value);
  if(!p||!p.name||!p.dept){say('اكتب الاسم واختاره من قايمة المسجلين الأول',true);return;}
+ if(zone(b,n)===CO_ZONE){say('الكرسي ده مقفول لناس الشركة',true);return;}
  if(zone(b,n,p.dept)!==p.dept){say('الكرسي ده مخصص لـ'+zone(b,n),true);return;}
  if(p.kind==='friend'&&S.mine.filter(v=>v.kind==='friend').length>=3){say('الحد الأقصى 3 أصدقاء',true);return;}
  if(p.kind==='me'&&!S.admin&&S.mine.some(v=>v.kind==='me')){say('انت حاجز لنفسك بالفعل. الغي حجزك الأول لو عايز تغيره',true);return;}
