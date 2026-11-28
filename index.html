@@ -89,6 +89,8 @@ box-shadow:0 40px 60px -20px rgba(0,0,0,.75)}
 .s.m{--f:#2fc58f;--fl:#7bf3c6}
 .s.m::before{background:rgba(52,211,153,.5);box-shadow:0 0 28px 8px rgba(52,211,153,.85)}
 .s.m .bn{color:#04261a;font-weight:700;text-shadow:none}
+.s.ap{cursor:copy}
+.s.ap::before{background:rgba(229,154,58,.22);box-shadow:0 0 0 2px #e59a3a,0 0 0 5px rgba(229,154,58,.22)}
 
 .leg{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--mut);flex-wrap:wrap;margin-bottom:4px}
 .leg i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-inline-end:5px;vertical-align:-1px}
@@ -329,7 +331,7 @@ const bname=b=>(BUSCFG.names&&BUSCFG.names[b]&&String(BUSCFG.names[b]).trim())||
 const CLOSED_SEATS=[],CO_ZONE='الشركة';
 const effC=()=>Math.max(1,CFG.C-CLOSED_SEATS.length); // الكراسي الفعلية في الاتوبيس بعد المقفول (كل النسب بتتحسب عليها)
 let CAP=49,MIXED=6,QUOTA={},MAJ={},OPEN={},CFG={N:6,C:49,P:70};
-const S={uid:null,admin:false,bus:null,seats:{},watch:null,unsub:null,mine:[],friends:[],busy:false,pc:{},all:{},occ:{},started:false,pvSeat:null,pvKey:'',pvSet:[],hinting:false,hintPrev:null,tipSeat:null,tipAuto:false,tipT:0,ptype:'mouse',shirt:'',dropOK:false,synced:{},cache:{},sig:null,els:{},pdept:'',raf:0,rsig:'',cfgsig:'',busig:''};
+const S={uid:null,admin:false,admP:null,bus:null,seats:{},watch:null,unsub:null,mine:[],friends:[],busy:false,pc:{},all:{},occ:{},started:false,pvSeat:null,pvKey:'',pvSet:[],hinting:false,hintPrev:null,tipSeat:null,tipAuto:false,tipT:0,ptype:'mouse',shirt:'',dropOK:false,synced:{},cache:{},sig:null,els:{},pdept:'',raf:0,rsig:'',cfgsig:'',busig:''};
 const $=id=>document.getElementById(id);
 
 // ---------- ثوابت النسخة المطورة ----------
@@ -539,7 +541,7 @@ function statusOf(id){
 }
 let rsT=0;function renderSoon(){clearTimeout(rsT);rsT=setTimeout(render,60);}
 let admT=0;function queueAdmin(){if(admT)return;admT=setTimeout(()=>{admT=0;renderAdmin();},350);}
-function infoTxt(t){if(!t||!t.trim())return '';const r=lookup(t);return r?'✓ قسم '+r.dept+' · '+(r.comp?'معاك '+r.comp+' مرافق، هيتحجزلهم كراسي ورا بعض':'من غير مرافق'):(RI.some(x=>x.k===NORM(t))?'الاسم ده متكرر في القايمة، اختار الصح من الاقتراحات (بيفرق بالقسم وعدد المرافقين)':'الاسم ده مش في قايمة المسجلين، اختاره من الاقتراحات');}
+function infoTxt(t){if(!t||!t.trim())return '';const r=lookup(t);return r?'✓ قسم '+r.dept+' · '+(r.comp?'معاك '+r.comp+' مرافق، هيتحجزلهم كراسي في نفس الأتوبيس (جنب بعض لو متاح)':'من غير مرافق'):(RI.some(x=>x.k===NORM(t))?'الاسم ده متكرر في القايمة، اختار الصح من الاقتراحات (بيفرق بالقسم وعدد المرافقين)':'الاسم ده مش في قايمة المسجلين، اختاره من الاقتراحات');}
 function attach(inp,box,info,cb){
  const upd=()=>{
   const k=NORM(inp.value);box.innerHTML='';const ex=lookup(inp.value);
@@ -662,6 +664,7 @@ function buildBus(){
    btn.onblur=()=>leaveSeat(num);
    btn.onclick=()=>{
     const s=S.seats[num];
+    if(S.admP&&S.admin){if(s){showTip(num,true);say('الكرسي ده محجوز، اختار كرسي فاضي',true);return;}return adminPlace(S.bus,num);}
     if(btn.classList.contains('z')){if(S.ptype==='touch')showTip(num,true);say('الكرسي ده مخصص لـ'+btn._z,true);return;}
     // على اللمس: الضغطة الأولى معاينة، والتانية على نفس الكرسي تأكيد
     if(!s&&S.ptype==='touch'&&S.pvSeat!==num){enterSeat(num);if(S.pvSeat===num){sfx('select');return;}}
@@ -699,6 +702,8 @@ function paintSeats(){
    if(title)btn.title=title;else btn.removeAttribute('title');
    btn.setAttribute('aria-label','كرسي '+num+(s?(mine?' - حجزك':' - محجوز'):(z===CO_ZONE?' - مقفول للشركة':zl?' - مخصص لـ'+z:' - متاح'))+(cr?' - من شلتك':''));
   }
+  const apOn=!!S.admP&&S.admin&&!s;
+  if(btn.classList.contains('ap')!==apOn)btn.classList.toggle('ap',apOn);
   const ik=seatIk(s,mine,num);
   if(!btn._pv&&btn._ik!==ik){
    const was=btn._ik;btn._ik=ik;btn.innerHTML=seatHtml(num,s,mine);
@@ -723,19 +728,20 @@ function render(){
    d.innerHTML='<span>✓ '+esc(v.name)+(c>1?' + '+(c-1)+' مرافق':'')+' · '+esc(bname(v.bus))+' · كراسي '+esc(v.seats)+'</span>';
    const x=document.createElement('button');x.className='b';x.textContent='إلغاء';x.onclick=()=>cancelP(v.id);const tkb=document.createElement('button');tkb.className='b';tkb.textContent='التذكرة';tkb.title='التذكرة';tkb.onclick=()=>showTicketCard(v,false);const wr=document.createElement('span');wr.style.cssText='display:flex;gap:6px';wr.append(tkb,x);d.appendChild(wr);bk.appendChild(d);});
  }
- if(!p.dept){clr();say('اكتب اسمك واختاره من القايمة الأول عشان تشوف الاتوبيسات');return;}
+ const dp=S.admP?S.admP.dept:p.dept;
+ if(!dp){clr();say('اكتب اسمك واختاره من القايمة الأول عشان تشوف الاتوبيسات');return;}
  if($('msg').textContent==='اكتب اسمك واختاره من القايمة الأول عشان تشوف الاتوبيسات')say('');
- occ(p.dept);
- const list=allowed(p.dept);
+ occ(dp);
+ const list=allowed(dp);
  if(!list.length){clr();say('مفيش اتوبيس متاح لقسمك دلوقتي، كلّم المسؤول',true);return;}
  if(!list.includes(S.bus))S.bus=list[0];
  watchBus(S.bus);
- const tkey=S.bus+'#'+list.map(b=>b+'~'+bname(b)+'~'+role(b,p.dept)+'~'+(MAJ[b]||'')).join('|');
+ const tkey=S.bus+'#'+list.map(b=>b+'~'+bname(b)+'~'+role(b,dp)+'~'+(MAJ[b]||'')).join('|');
  if(tabs._k!==tkey){
   tabs._k=tkey;tabs.innerHTML='';
   list.forEach(b=>{
    const t=document.createElement('button');t.className='tab'+(b===S.bus?' on':'');
-   t.innerHTML=esc(bname(b))+'<small>'+role(b,p.dept)+' · '+(MAJ[b]?'أغلبيته '+MAJ[b]:MANB.has(b)?'توزيع يدوي':'مشكل')+'</small>';
+   t.innerHTML=esc(bname(b))+'<small>'+role(b,dp)+' · '+(MAJ[b]?'أغلبيته '+MAJ[b]:MANB.has(b)?'توزيع يدوي':'مشكل')+'</small>';
    t.onclick=()=>{S.bus=b;render();};tabs.appendChild(t);
   });
  }
@@ -745,7 +751,7 @@ function render(){
  // نعيد بناء الاتوبيس بس لو الاتوبيس أو التخطيط أو الحصص اتغيروا، غير كده نعدّل الكراسي في مكانها
  const sg=busSig();
  if(sg!==S.sig){buildBus();S.sig=sg;}
- S.pdept=p.dept;paintSeats();
+ S.pdept=dp;paintSeats();
 }
 const ROWS={5:[0,1,2,3,4],4:[0,1,'a',2,3],3:[0,'e','a',1,2],2:['e','e','a',0,1],1:['e','e','a',0,'e'],D:['door','a',0,1]};
 function planOf(C){
@@ -796,15 +802,44 @@ function groupsOf(k){
  return L.g[k]=out;
 }
 // بترجع مصفوفة كراسي (فيها الكرسي المختار) أو null. occ = الكراسي المحجوزة، must = كراسي لازم تفضل جوه التجميع (للتعديل)
-function findWin(b,n,k,d,occ,must){
+// القاعدة: كل كراسي الحجز في نفس الأتوبيس، وكلها متاحة لقسمه (نفس قواعد القسم والظهور). الجنب بعض مش شرط
+// بنفضّل الجنب بعض لو متاح، ولو مش متاح بنكمّل من أقرب الكراسي الفاضية في نفس الأتوبيس
+function growNear(b,n,k,d,occ,must,any){
+ const ok=q=>must.includes(q)||((any||zone(b,q,d)===d)&&!occ[q]);
+ if(!must.every(ok))return null;
+ const set=new Set(must),q=must.slice();
+ while(set.size<k&&q.length){
+  const cur=q.shift(),nb=neighbors(cur);
+  [...nb.side,...nb.back].forEach(x=>{if(set.size<k&&ok(x)&&!set.has(x)){set.add(x);q.push(x);}});
+ }
+ if(set.size<k){
+  const rest=[];
+  for(let x=1;x<=CAP;x++)if(!set.has(x)&&ok(x))rest.push(x);
+  rest.sort((a2,b2)=>Math.abs(a2-n)-Math.abs(b2-n)||a2-b2);
+  for(let i=0;set.size<k&&i<rest.length;i++)set.add(rest[i]);
+ }
+ if(set.size<k)return null;
+ return [...set].sort((a2,b2)=>a2-b2);
+}
+// هل الكراسي جنب بعض فعلاً؟ (لوصف المكان بس، مش شرط للحجز)
+function adjGrp(grp){
+ if(grp.length<2)return true;
+ const all=new Set(grp),seen=new Set([grp[0]]),q=[grp[0]];
+ while(q.length){const cur=q.pop(),nb=neighbors(cur);[...nb.side,...nb.back].forEach(x=>{if(all.has(x)&&!seen.has(x)){seen.add(x);q.push(x);}});}
+ return seen.size===grp.length;
+}
+function findWin(b,n,k,d,occ,must,any){
  occ=occ||S.seats;must=must||[n];
- const ok=q=>must.includes(q)||(zone(b,q,d)===d&&!occ[q]);
+ const ok=q=>must.includes(q)||((any||zone(b,q,d)===d)&&!occ[q]);
  if(k===1)return ok(n)?[n]:null;
  const c=groupsOf(k).filter(g=>must.every(m=>g.includes(m))&&g.every(ok));
- if(!c.length)return null;
- const bn=g=>LAY().at[g[0]].side==='B'?0:1,rk=g=>g.indexOf(must[0]);
- c.sort((x,y)=>(k>=3?bn(x)-bn(y):0)||rk(x)-rk(y)||x[0]-y[0]);
- return c[0];
+ if(c.length){
+  const bn=g=>LAY().at[g[0]].side==='B'?0:1,rk=g=>g.indexOf(must[0]);
+  c.sort((x,y)=>(k>=3?bn(x)-bn(y):0)||rk(x)-rk(y)||x[0]-y[0]);
+  return c[0];
+ }
+ // مفيش تجميع كامل جنب بعض: نكمل من الكراسي الفاضية في نفس الأتوبيس (الأقرب للكرسي المختار الأول)
+ return growNear(b,n,k,d,occ,must,any);
 }
 function seatList(v){const o=[];String(v.seats||'').split(',').forEach(t=>{const q=t.split('-').map(Number);if(!q[0])return;const e=q.length>1?q[1]:q[0];for(let i=q[0];i<=e;i++)o.push(i);});return o;}
 function fmtSeats(a){a=a.slice().sort((x,y)=>x-y);const o=[];for(let i=0;i<a.length;){let j=i;while(j+1<a.length&&a[j+1]===a[j]+1)j++;o.push(j>i?a[i]+'-'+a[j]:''+a[i]);i=j+1;}return o.join(',');}
@@ -878,6 +913,7 @@ function hint(t,bad){const m=$('msg');if(!S.hinting){S.hintPrev={t:m.textContent
 function clearHint(){if(!S.hinting)return;S.hinting=false;const m=$('msg'),h=S.hintPrev||{t:'',c:''};m.textContent=h.t;m.style.color=h.c;}
 function whereTxt(grp){
  const L=LAY(),a=grp.map(q=>L.at[q]).filter(Boolean);if(!a.length)return '';
+ if(!adjGrp(grp))return 'نفس الأتوبيس · الكراسي مش جنب بعض';
  const sd=a[0].side;
  if(sd==='B')return grp.length>1?'جنب بعض في الدكة الورانية':'في الدكة الورانية';
  const sn=sd==='R'?'الجهة اليمين':'الجهة الشمال';
@@ -896,15 +932,15 @@ function clearPreview(keepHint){
  if(!keepHint)clearHint();
 }
 // معاينة الكراسي اللي هتتحجز فعلاً (نفس findWin بتاع الحجز)
-function previewSeat(num){
+function previewSeat(num,ov){
  const btn=S.els[num];if(!btn)return;
- if(S.seats[num]||btn.classList.contains('z')){clearPreview();return;}
- const p=persons().find(x=>x.id===$('who').value)||null;
+ if(S.seats[num]||(!ov&&btn.classList.contains('z'))){clearPreview();return;}
+ const p=ov||persons().find(x=>x.id===$('who').value)||null;
  if(!p||!p.name||!p.dept){clearPreview();return;}
- const k=1+p.comp,grp=findWin(S.bus,num,k,p.dept),key=num+'|'+(grp?grp.join(','):'x')+'|'+p.id+'|'+S.shirt+'|'+S.acc;
+ const k=1+(p.comp||0),grp=findWin(S.bus,num,k,p.dept,S.seats,null,!!ov),key=num+'|'+(grp?grp.join(','):'x')+'|'+(p.nid||p.id)+'|'+S.shirt+'|'+S.acc;
  if(key===S.pvKey&&S.pvSeat===num)return;
  clearPreview(true);S.pvSeat=num;S.pvKey=key;
- if(!grp){btn.classList.add('pvx');S.pvSet=[num];hint('مفيش '+k+' كراسي فاضيين مترتبين حوالين الكرسي ده، جرب مكان تاني',true);return;}
+ if(!grp){btn.classList.add('pvx');S.pvSet=[num];hint('مفيش '+k+' كراسي فاضية كفاية في الأتوبيس ده، جرب أتوبيس تاني',true);return;}
  S.pvSet=grp.slice();
  grp.forEach(q=>{
   const el=S.els[q];if(!el)return;
@@ -944,6 +980,7 @@ function hideTip(){clearTimeout(S.tipT);S.tipSeat=null;const t=$('tip');if(t)t.h
 function resetHover(){S.pvSet=[];S.pvSeat=null;S.pvKey='';hideTip();clearHint();}
 function enterSeat(num){
  const btn=S.els[num];if(!btn)return;povShow(num);
+ if(S.admP&&S.admin&&!S.seats[num]){hideTip();const b4=S.pvKey;previewSeat(num,admWho());if(S.pvKey!==b4&&!RM.matches){const n2=Date.now();if(n2-SND.last>70){SND.last=n2;sfx('hover');}}return;}
  if(S.seats[num]||btn.classList.contains('z')){clearPreview();showTip(num);return;}
  hideTip();
  const before=S.pvKey;previewSeat(num);
@@ -981,10 +1018,10 @@ async function slowHint(p,txt){
  const t=setTimeout(()=>netHint(txt||HIGH),2500);
  try{return await p;}finally{clearTimeout(t);netHint('');}
 }
-function reviewBooking(p,b,grp){
+function reviewBooking(p,b,grp,adm){
  return new Promise(resolve=>{
   const overlay=document.createElement('div');overlay.className='confirm-overlay';
-  overlay.innerHTML='<section class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="review-title"><h2 id="review-title">راجع اختيارك</h2><p>'+ (demoMode?'دي تجربة بس، مفيش حجز حقيقي هيتم.':'راجع البيانات قبل تأكيد الحجز.')+'</p><div class="confirm-summary"><b>'+esc(p.name)+'</b><br>'+esc(bname(b))+' · الكراسي '+esc(fmtSeats(grp))+'<br>'+grp.length+' أشخاص · قسم '+esc(p.dept)+'</div><div class="confirm-buttons"><button class="primary" id="review-yes">'+(demoMode?'تأكيد تجريبي':'تأكيد الحجز')+'</button><button id="review-no">رجوع</button></div></section>';
+  overlay.innerHTML='<section class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="review-title"><h2 id="review-title">راجع اختيارك</h2><p>'+ (demoMode?'دي تجربة بس، مفيش حجز حقيقي هيتم.':adm?'تسكين أدمن: راجع قبل التأكيد.':'راجع البيانات قبل تأكيد الحجز.')+'</p><div class="confirm-summary"><b>'+esc(p.name)+'</b><br>'+esc(bname(b))+' · الكراسي '+esc(fmtSeats(grp))+'<br>'+grp.length+' أشخاص · قسم '+esc(p.dept)+(adjGrp(grp)?'':'<br><span style="color:#e59a3a">الكراسي مش جنب بعض · كله في نفس الأتوبيس</span>')+(adm?'<br><span style="color:#e59a3a">تسكين أدمن · ممكن يكون برا قسمه أو في الاحتياطي</span>':'')+'</div><div class="confirm-buttons"><button class="primary" id="review-yes">'+(demoMode?'تأكيد تجريبي':'تأكيد الحجز')+'</button><button id="review-no">رجوع</button></div></section>';
   const previous=document.activeElement;
   const close=v=>{document.removeEventListener('keydown',key);overlay.remove();if(previous&&previous.isConnected)previous.focus({preventScroll:true});resolve(v);};
   const key=e=>{if(e.key==='Escape')close(false);if(e.key==='Tab'){e.preventDefault();(document.activeElement===overlay.querySelector('#review-yes')?overlay.querySelector('#review-no'):overlay.querySelector('#review-yes')).focus();}};
@@ -1007,7 +1044,7 @@ async function onSeat(b,n){
  if(p.kind==='friend'&&S.mine.filter(v=>v.kind==='friend').length>=3){say('الحد الأقصى 3 أصدقاء',true);return;}
  if(p.kind==='me'&&!S.admin&&S.mine.some(v=>v.kind==='me')){say('انت حاجز لنفسك بالفعل. الغي حجزك الأول لو عايز تغيره',true);return;}
  const nid=p.nid,k=1+p.comp,grp=findWin(b,n,k,p.dept);
- if(!grp){say(k>1?'مفيش '+k+' كراسي فاضيين مترتبين حوالين الكرسي ده (نفس الجهة وبجنب بعض أو ورا بعض، أو في الدكة الورانية)، جرب مكان تاني':'الكرسي ده مش متاح',true);return;}
+ if(!grp){say(k>1?'مفيش '+k+' كراسي فاضية كفاية في الأتوبيس ده، جرب أتوبيس تاني':'الكرسي ده مش متاح',true);return;}
  if(!await reviewBooking(p,b,grp))return;
  const ownerName=(lookup($('nm').value)||{name:p.name}).name;
   clearPreview();sfx('select');const shirt=okShirt(S.shirt),acc=okAcc(S.acc);setBusy(true);say('جاري الحجز...');
@@ -1029,8 +1066,49 @@ async function onSeat(b,n){
  }catch(e){
   const m=e&&e.message;
   if(m==='name'||m==='taken')delete S.pc[nid];sfx('deny');
-  say(m==='name'?'الاسم ده اتحجز قبلك':m==='taken'?'الكرسي اتحجز قبلك بثانية، جرب كرسي تاني':(typeof navigator!=='undefined'&&navigator.onLine===false)?'مفيش اتصال بالإنترنت، اتأكد من النت وحاول تاني':'الزحمة كبيرة دلوقتي، حاول تاني',true);
-  if(m==='name')loadMine();
+  if(m==='name'){
+   let t='الاسم ده مسجل بالفعل';
+   try{const q2=await getDoc(doc(db,'people',nid));if(q2.exists()){const v2=q2.data();t='الاسم ده مسجل بالفعل · '+bname(v2.bus)+' · كراسي '+v2.seats;}}catch(e2){}
+   say(t+' · كلّم المسؤول لو محتاج تغيير',true);loadMine();
+  }else{
+   say(m==='taken'?'الكرسي اتحجز قبلك بثانية، جرب كرسي تاني':(typeof navigator!=='undefined'&&navigator.onLine===false)?'مفيش اتصال بالإنترنت، اتأكد من النت وحاول تاني':'الزحمة كبيرة دلوقتي، حاول تاني',true);
+  }
+ }finally{setBusy(false);}
+}
+// ---------- تسكين الأدمن: وضع أي شخص في أي كرسي فاضي (تجاوز قيود القسم والاحتياطي) ----------
+function admWho(){return S.admP?{name:S.admP.name,dept:S.admP.dept,comp:S.admP.comp||0,nid:S.admP.nid,kind:'me'}:null;}
+function setPlace(p){
+ if(!S.admin)return;
+ S.admP=p;
+ if(p){S.showAll=true;const cb=$('showAll');if(cb)cb.checked=true;if(!S.bus)S.bus=1;}
+ render();
+ if(p)say('وضع التسكين: '+p.name+' ('+p.dept+(p.comp?' + '+p.comp+' مرافق':'')+') · دوس على أي كرسي فاضي في أي اتوبيس، حتى المقفول لقسم تاني');
+ else say('');
+}
+async function adminPlace(b,num){
+ if(!S.admin||!S.admP||S.busy)return;
+ if(!S.uid){say('استنى ثانية، بيتم الاتصال...',true);return;}
+ const p=S.admP;
+ if(S.seats[num]){say('الكرسي ده محجوز، اختار كرسي فاضي',true);return;}
+ const k=1+(p.comp||0),grp=findWin(b,num,k,p.dept,S.seats,null,true);
+ if(!grp){say('مفيش '+k+' كراسي فاضية في الأتوبيس ده',true);return;}
+ if(!await reviewBooking({name:p.name,dept:p.dept},b,grp,true))return;
+ clearPreview();sfx('select');const shirt=okShirt(S.shirt),acc=okAcc(S.acc);setBusy(true);say('جاري التسكين...');
+ try{
+  await slowHint(retry(()=>runTransaction(db,async tx=>{
+   const bref=doc(db,'buses','b'+b),pref=doc(db,'people',p.nid),srefs=grp.map(q=>doc(db,'buses','b'+b,'seats',''+q));
+   const rd=await Promise.all([tx.get(pref),tx.get(bref)].concat(srefs.map(r=>tx.get(r))));
+   if(rd[0].exists())throw new Error('name');
+   const lg=(rd[1].exists()&&rd[1].data().seats)||{};
+   grp.forEach((q,i)=>{if(rd[2+i].exists()||lg[q])throw new Error('taken');});
+   grp.forEach((q,i)=>{const d={owner:'admin',pn:p.nid,name:q===num?p.name:p.name+' (مرافق)',dept:p.dept,ts:Date.now(),byAdmin:true};if(shirt)d.shirt=shirt;if(acc)d.acc=acc;tx.set(srefs[i],d);});
+   tx.set(pref,Object.assign({name:p.name,dept:p.dept,owner:'admin',ownerName:'الأدمن',kind:'admin',bus:b,seats:fmtSeats(grp),k:k,ts:Date.now(),byAdmin:true},shirt?{shirt:shirt}:{},acc?{acc:acc}:{}));
+  }),HIGH),HIGH);
+  bumpStats(b,p.dept,k);
+  say('تم تسكين '+p.name+' · '+p.dept+' · '+bname(b)+' · كراسي '+fmtSeats(grp)+' · وضع التسكين لسه شغال، اختار كرسي تاني أو اضغط إلغاء التسكين');
+ }catch(e){
+  const m=e&&e.message;sfx('deny');
+  say(m==='name'?'الشخص ده مسجل بالفعل، الغي حجزه الأول لو عايز تنقله':m==='taken'?'كرسي من الكراسي اتحجز قبلك بثانية، جرب كرسي تاني':'مقدرتش أسكّنه، حاول تاني',true);
  }finally{setBusy(false);}
 }
 function doCancel(nid){
@@ -1122,6 +1200,13 @@ async function loadMine(){
 
 // ---------- تنزيل Excel (للأدمن بس): شيت لكل اتوبيس باسمه وفيه ناسه ----------
 const xs=v=>{v=String(v==null?'':v);return /^[=+\-@]/.test(v)?"'"+v:v;};
+// كشف كراسي أتوبيس: مستند لكل كرسي + الشكل القديم (map) لو موجود
+async function busSeatMap(b){
+ const m={};
+ try{const x=await getDoc(doc(db,'buses','b'+b));Object.assign(m,(x.exists()&&x.data().seats)||{});}catch(e){}
+ try{const sn=await getDocs(collection(db,'buses','b'+b,'seats'));sn.forEach(d=>{m[d.id]=d.data();});}catch(e){}
+ return m;
+}
 async function downloadXlsx(){
  if(!S.admin)return;
  const btn=$('xdl');if(btn){btn.disabled=true;btn.textContent='جاري تجهيز الملف...';}
@@ -1130,28 +1215,37 @@ async function downloadXlsx(){
   const wb=XLSX.utils.book_new(),used=new Set();
   const sname=n=>{const base=String(n).replace(/[\[\]:*?\/\\]/g,' ').trim().slice(0,31)||'اتوبيس';let x=base,i=2;
    while(used.has(x.toLowerCase())){const suf=' '+(i++);x=base.slice(0,31-suf.length)+suf;}used.add(x.toLowerCase());return x;};
-  const ppl=Object.entries(S.all).map(([id,v])=>Object.assign({id:id},v)),cn=v=>seatList(v).length;
-  const sheet=(rows,w)=>{const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=w.map(x=>({wch:x}));return ws;};
-  const sum=[['الاتوبيس','عدد الحجوزات','عدد الكراسي المحجوزة','سعة الاتوبيس']],sheets=[];
+  const ppl=Object.entries(S.all).map(([id,v])=>Object.assign({id:id},v));
+  const sheet=(rows,w,merge)=>{const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=w.map(x=>({wch:x}));if(merge)ws['!merges']=merge;return ws;};
+  const sum=[['الاتوبيس','عدد الحجوزات','عدد الأشخاص','سعة الاتوبيس']],sheets=[];
   for(let b=1;b<=CFG.N+extraN();b++){
-   const l=ppl.filter(v=>+v.bus===b).sort((x,y)=>(parseInt(x.seats)||0)-(parseInt(y.seats)||0));
-   const rows=[['م','الاسم','القسم','عدد الأشخاص','عدد المرافقين','الكراسي','نوع الحجز','حجزه']];
-   l.forEach((v,i)=>{const c=cn(v);rows.push([i+1,xs(v.name),xs(v.dept),c,c-1,xs(v.seats),v.kind==='friend'?'حجز لصديق':'حجز لنفسه',xs(v.kind==='friend'?v.ownerName:'')]);});
-   const seatsN=l.reduce((a,v)=>a+cn(v),0);
-   rows.push([],['','الإجمالي','',seatsN,'','','','']);
-   sum.push([bname(b),l.length,seatsN,CAP]);
-   sheets.push([sname(bname(b)),sheet(rows,[5,28,12,13,13,16,14,22])]);
+   const l=ppl.filter(v=>+v.bus===b),sm=await busSeatMap(b),seen=new Set(),rows=[],seatRows=[];
+   // كل كرسي محجوز = سطر: صاحب الحجز والمرافقين كل واحد لوحده بكرسيه
+   Object.keys(sm).map(Number).sort((x,y)=>x-y).forEach(q=>{
+    const st=sm[q]||{},nm=String(st.name||'').trim();if(!nm)return;
+    const comp=/\(مرافق\)$/.test(nm);
+    seatRows.push([seatRows.length+1,xs(nm.replace(/\s*\(مرافق\)$/,'')),xs(st.dept||''),q,comp?'مرافق':'صاحب الحجز',st.byAdmin?'تسكين أدمن':'']);
+    if(st.pn)seen.add(st.pn);
+   });
+   // أي حجز مالوش مستند كرسي (شكل قديم) يظهر برضه
+   l.forEach(v=>{if(seen.has(v.id))return;seatRows.push([seatRows.length+1,xs(v.name),xs(v.dept),xs(v.seats),'حجز قديم (من غير مستند كرسي)',v.byAdmin?'تسكين أدمن':'']);});
+   rows.push([bname(b)]); // اسم الاتوبيس في أول صف
+   rows.push(['عدد الحجوزات: '+l.length+' · عدد الأشخاص: '+seatRows.length+' · سعة الاتوبيس: '+CAP]);
+   rows.push(['م','الاسم','القسم','الكرسي','نوع','ملاحظات']);
+   seatRows.forEach(r=>rows.push(r));
+   sum.push([bname(b),l.length,seatRows.length,CAP]);
+   sheets.push([sname(bname(b)),sheet(rows,[5,30,14,12,19,14],[{s:{r:0,c:0},e:{r:0,c:5}}])]);
   }
-  XLSX.utils.book_append_sheet(wb,sheet(sum,[24,14,20,14]),sname('ملخص'));
-  sheets.forEach(s=>XLSX.utils.book_append_sheet(wb,s[1],s[0]));
+  XLSX.utils.book_append_sheet(wb,sheet(sum,[24,14,16,14]),sname('ملخص'));
+  sheets.forEach(s2=>XLSX.utils.book_append_sheet(wb,s2[1],s2[0]));
   const left=RI.filter(r=>!S.all[r.id]).map(r=>[xs(r.name),xs(r.dept),r.comp]);
   XLSX.utils.book_append_sheet(wb,sheet([['الاسم','القسم','عدد المرافقين']].concat(left),[30,12,14]),sname('لسه ما حجزوش'));
   wb.Workbook={Views:[{RTL:true}]};
   const d=new Date(),z=n=>String(n).padStart(2,'0');
   XLSX.writeFile(wb,'bus-booking-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.xlsx');
-  say('تم تنزيل ملف Excel');
+  say('تم تصدير ملف Excel · شيت لكل اتوبيس');
  }catch(e){say('مقدرتش أجهّز ملف Excel، اتأكد من النت وحاول تاني',true);}
- finally{const b2=$('xdl');if(b2){b2.disabled=false;b2.textContent=' تنزيل Excel (شيت لكل اتوبيس)';}}
+ finally{const b2=$('xdl');if(b2){b2.disabled=false;b2.textContent=' تصدير Excel (شيت لكل اتوبيس)';}}
 }
 // ---------- الأدمن ----------
 function renderAdmin(){
@@ -1162,20 +1256,26 @@ function renderAdmin(){
  const tot=ppl.reduce((a,v)=>a+cn(v),0),byB={},byD={};
  ppl.forEach(v=>{(byB[v.bus]=byB[v.bus]||[]).push(v);byD[v.dept]=(byD[v.dept]||0)+cn(v);});
  const left=RI.filter(r=>!S.all[r.id]);
- let h='<div class="hd">لوحة الأدمن · '+ppl.length+' حجز · '+tot+' كرسي</div><div class="sum">'+DEPTS.map(d=>d+': '+(byD[d]||0)).join(' · ')+'</div><button class="b" id="xdl" type="button" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#ffd98f,#e59a3a);color:#1b1306;font-weight:700"> تنزيل Excel (شيت لكل اتوبيس)</button>';
+ let h='<div class="hd">لوحة الأدمن · '+ppl.length+' حجز · '+tot+' كرسي</div><div class="sum">'+DEPTS.map(d=>d+': '+(byD[d]||0)).join(' · ')+'</div><button class="b" id="xdl" type="button" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#ffd98f,#e59a3a);color:#1b1306;font-weight:700"> تصدير Excel (شيت لكل اتوبيس)</button>';
+ h+='<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px"><div class="hd">تسكين شخص في كرسي (أدمن)</div><div class="sum" style="text-align:right;margin:0 0 8px">اكتب الاسم، أو دوس "سكّنه" جنب أي اسم لسه ما حجزش. بعدها دوس على أي كرسي فاضي في أي اتوبيس — حتى الكراسي المقفولة لقسم تاني أو الاحتياطي.</div><input id="apn" autocomplete="off" placeholder="اسم الشخص"/><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="b" id="apo" type="button" style="background:linear-gradient(135deg,#ffd98f,#e59a3a);color:#1b1306;font-weight:700">وضع التسكين</button><button class="b" id="apx" type="button">إلغاء التسكين</button></div><div class="sum" id="apm" style="text-align:right;margin-top:8px">'+(S.admP?'وضع التسكين شغال: '+esc(S.admP.name)+' · '+esc(S.admP.dept)+(S.admP.comp?' + '+S.admP.comp+' مرافق':'')+' — دوس على الكرسي في الخريطة':'مفيش وضع تسكين دلوقتي')+'</div></div>';
  for(let b=1;b<=CFG.N+extraN();b++){
   const l=byB[b]||[],n=l.reduce((a,v)=>a+cn(v),0);
   h+='<details><summary>'+esc(bname(b))+' · '+n+' من '+CAP+'</summary>';
-  l.forEach(v=>{const c=cn(v);h+='<div class="bk"><span>'+esc(v.name)+' · '+esc(v.dept)+(c>1?' + '+(c-1)+' مرافق':'')+(v.kind==='friend'?' · حجزله '+esc(v.ownerName):'')+'</span><span>كراسي '+esc(v.seats)+' <button class="b" data-c="'+esc(v.id)+'">إلغاء</button></span></div>';});
+  l.forEach(v=>{const c=cn(v);h+='<div class="bk"><span>'+esc(v.name)+' · '+esc(v.dept)+(c>1?' + '+(c-1)+' مرافق':'')+(v.kind==='friend'?' · حجزله '+esc(v.ownerName):'')+(v.byAdmin?' · تسكين أدمن':'')+'</span><span>كراسي '+esc(v.seats)+' <button class="b" data-c="'+esc(v.id)+'">إلغاء</button></span></div>';});
   h+='</details>';
  }
- h+='<details><summary>لسه ما حجزوش · '+left.length+'</summary>'+left.map(r=>'<div class="bk"><span>'+esc(r.dup?r.label:r.name+' · '+r.dept)+'</span><span>'+(r.comp?r.comp+' مرافق':'')+'</span></div>').join('')+'</details>';
+ h+='<details><summary>لسه ما حجزوش · '+left.length+'</summary>'+left.map(r=>'<div class="bk"><span>'+esc(r.dup?r.label:r.name+' · '+r.dept)+'</span><span>'+(r.comp?r.comp+' مرافق':'')+' <button class="b" data-p="'+esc(r.id)+'" type="button">سكّنه</button></span></div>').join('')+'</details>';
 if(el._h!==h){
   const op=[...el.querySelectorAll('details')].map(d=>d.open);
+  const oldAp=el.querySelector('#apn'),oldApV=oldAp?oldAp.value:'';
   el.innerHTML=h;el._h=h;
   el.querySelectorAll('details').forEach((d,i)=>{if(op[i])d.open=true;});
   const xb=el.querySelector('#xdl');if(xb)xb.onclick=downloadXlsx;
   el.querySelectorAll('button[data-c]').forEach(b=>{b.onclick=()=>{if(confirm('إلغاء الحجز ده؟'))cancelP(b.dataset.c);};});
+  const apn=el.querySelector('#apn');if(apn)apn.value=S.admP?S.admP.name:oldApV;
+  const apo=el.querySelector('#apo');if(apo)apo.onclick=()=>{const t=(($('apn')||{}).value||'').trim();if(!t){alert('اكتب اسم الشخص');return;}const r=lookup(t);if(!r){alert('الاسم ده مش في قايمة المسجلين');return;}setPlace({nid:r.id,name:r.name,dept:r.dept,comp:r.comp||0});};
+  const apx=el.querySelector('#apx');if(apx)apx.onclick=()=>setPlace(null);
+  el.querySelectorAll('button[data-p]').forEach(b=>{b.onclick=()=>{const r=RI.find(x=>x.id===b.dataset.p);if(r)setPlace({nid:r.id,name:r.name,dept:r.dept,comp:r.comp||0});};});
  }
  el.hidden=false;
 }
@@ -1269,7 +1369,7 @@ async function reconcileOne(v){
   // زيادة المرافقين: البحث بيبدأ من كرسي صاحب الحجز بس (own)، وكراسيه القديمة بتتحسب فاضية عشان النافذة الجديدة تقدر تعيد استخدامها
   const occ=Object.assign({},occM||{});L.forEach(q=>{delete occ[q];});
   const g=findWin(v.bus,own,nk,cur.dept,occ,[own]);
-  if(!g)return {act:'cancel',why:'المرافقين زادوا ومفيش كراسي فاضية مترتبة حوالين كرسيه، لازم يحجز تاني'};
+  if(!g)return {act:'cancel',why:'المرافقين زادوا ومفيش كراسي فاضية كفاية في الأتوبيس، لازم يحجز تاني'};
   const keepSet=new Set(g),nw=g.filter(q=>!L.includes(q)),rm=L.filter(q=>!keepSet.has(q));
   const bref=doc(db,'buses','b'+v.bus),bs=await tx.get(bref),lg=(bs.exists()&&bs.data().seats)||{};
   const ns=await Promise.all(nw.map(q=>tx.get(sref(q))));
